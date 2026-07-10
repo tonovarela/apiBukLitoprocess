@@ -93,6 +93,7 @@ namespace apiBukLitoprocess.responseApi
         [JsonPropertyName("phone")]
         public string? phone { get; set; }
 
+
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("email")]
         public string? email { get; set; }
@@ -100,6 +101,7 @@ namespace apiBukLitoprocess.responseApi
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("personal_email")]
         public string? personal_email { get; set; }
+
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("address")]
@@ -531,6 +533,14 @@ namespace apiBukLitoprocess.responseApi
         [JsonConverter(typeof(StringCustomConverter))]
         [JsonPropertyName("telContactoEmerg2")]
         public string? telContactoEmerg2 { get; set; }
+
+
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonConverter(typeof(StringCustomConverter))]
+        [JsonPropertyName("Lugar Nacimiento")]
+        public string? lugarNacimiento { get; set; }
+
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonConverter(typeof(StringCustomConverter))]

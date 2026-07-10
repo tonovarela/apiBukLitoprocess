@@ -18,6 +18,7 @@ public class ColaboradorDTO
 
     public  string? Correo { get; set; }
 
+     public string? Correo_Personal { get; set; }
     public string? NivelAcademico { get; set; }
 
     public string? Ext { get; set; } 

@@ -117,7 +117,6 @@ public class AsistenciaService
     }
 
 
-
     public async Task<List<ChecadaDTO>> ObtenerChecadas(string RFC, DateOnly desde)
     {
         DateOnly today = DateOnly.FromDateTime(DateTime.Now);

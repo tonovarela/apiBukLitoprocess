@@ -17,7 +17,9 @@ public static class ColaboradorExtensions
             
             CURP = colaborador.curp ?? string.Empty,
             RFC = colaborador.rfc ?? string.Empty,
-            Correo = colaborador.personal_email ?? string.Empty,
+            Correo = colaborador.email ?? string.Empty,
+            Correo_Personal = colaborador.personal_email ?? string.Empty,
+
             NSS = colaborador.social_security ?? string.Empty,
             Direccion = colaborador.address ?? string.Empty,
             CodigoPostal = colaborador.postal_code ?? String.Empty,
@@ -75,9 +77,8 @@ public static class ColaboradorExtensions
 
             FechaAlta = colaborador.active_since ,
             FechaBaja = colaborador.active_until,
-            Salario = colaborador.current_job?.wage  ?? 0
-
-            
+            Salario = colaborador.current_job?.wage  ?? 0,
+            Estado = colaborador.custom_attributes?.lugarNacimiento ?? String.Empty,            
 
 
         };

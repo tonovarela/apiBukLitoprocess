@@ -20,6 +20,8 @@ public class ColaboradorRepository : IColaboradorRepository
     public async Task Actualizar(ColaboradorDTO colaborador)
     {
 
+     
+
         try
         {
 
@@ -44,6 +46,9 @@ public class ColaboradorRepository : IColaboradorRepository
                                 Telefono=@Telefono,
                                 FechaNacimiento=@FechaNacimiento,                                
                                 NivelAcademico=@NivelAcademico,
+                                ZonaEconomica='A',
+                                FormaPago='Nomina Transferencia Electronica',
+                                CtaDinero='PAGOS7631',
                                 Sexo=@Sexo,
                                 EstadoCivil=@EstadoCivil,
                                 Beneficiario = @Beneficiario1,
@@ -74,7 +79,7 @@ public class ColaboradorRepository : IColaboradorRepository
                 command.Parameters.AddWithValue("@personal", colaborador.IdColaborador);
                 command.Parameters.AddWithValue("@Curp", colaborador.CURP);
                 command.Parameters.AddWithValue("@Rfc", colaborador.RFC);
-                command.Parameters.AddWithValue("@Correo", colaborador.Correo);
+                command.Parameters.AddWithValue("@Correo", colaborador.Correo_Personal);
                 command.Parameters.AddWithValue("@NSS", colaborador.NSS);
                 command.Parameters.AddWithValue("@Direccion", colaborador.Direccion);
                 command.Parameters.AddWithValue("@Colonia", colaborador.Colonia);
