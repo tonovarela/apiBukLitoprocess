@@ -167,20 +167,22 @@ public class ColaboradorController : ControllerBase
 
 
     [HttpGet("jornadas")]
-    public async Task<IActionResult> GetJornadas([FromQuery] int diasAtras = 20)
+    public async Task<IActionResult> GetJornadas([FromQuery] int diasAtras = 10)
     {
         if (diasAtras <= 0)
         {
-            diasAtras = 20;
+            diasAtras = 10;
         }
      DateOnly desde = DateOnly.FromDateTime(DateTime.Now.AddDays(diasAtras * (-1)));
+     DateOnly hasta = DateOnly.FromDateTime(DateTime.Now.AddDays(diasAtras));
+     DateOnly fechaEliminacion = DateOnly.FromDateTime(DateTime.Now.AddDays((diasAtras-1) * (-1)));
         try
         {
-            await _asistenciaService.EliminarJornadasDesde(DateOnly.FromDateTime(DateTime.Now.AddDays(-15)));
-            var jornadas = await _asistenciaService.registroJornada(desde);
+            await _asistenciaService.EliminarJornadasDesde(fechaEliminacion);
+            var jornadas = await _asistenciaService.registroJornada(desde, hasta);
             return Ok(new
             {
-                fecha = new { inicio =desde,fin = DateOnly.FromDateTime(DateTime.Now) },
+                fecha = new { inicio = desde, fin = hasta , fechaEliminacion},
                 total=jornadas.Count,
                 data = jornadas
             });

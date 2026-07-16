@@ -44,9 +44,9 @@ public class AsistenciaService
     // }
 
 
-    public async Task<List<JornadaDTO>> registroJornada(DateOnly desde)
+    public async Task<List<JornadaDTO>> registroJornada(DateOnly desde, DateOnly? hasta = null)
     {
-        DateOnly hasta = DateOnly.FromDateTime(DateTime.Now);
+        hasta ??= DateOnly.FromDateTime(DateTime.Now.AddDays(10));
 
         var todasLasJornadas = new List<ResponseJornada>();
         int page = 1;
