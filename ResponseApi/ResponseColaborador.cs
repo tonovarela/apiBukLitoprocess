@@ -1,4 +1,3 @@
-
 using System.Text.Json.Serialization;
 using apiBukLitoprocess.helpers;
 
@@ -330,6 +329,10 @@ namespace apiBukLitoprocess.responseApi
         public string? status { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyName("worker_kind")]
+        public string? worker_kind { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("role")]
         public Role? role { get; set; }
 
@@ -404,6 +407,27 @@ namespace apiBukLitoprocess.responseApi
         [JsonPropertyName("idColaborador")]
         [JsonConverter(typeof(StringCustomConverter))]
         public string? idColaborador { get; set; }
+
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyName("# Hijos")]
+        [JsonConverter(typeof(StringCustomConverter))]
+        public string? NumeroHijos { get; set; }
+
+
+        
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyName("Factor jornada")]
+        [JsonConverter(typeof(StringCustomConverter))]
+        public string? FactorJornada { get; set; }
+
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyName("Tipo Contrato")]
+        [JsonConverter(typeof(StringCustomConverter))]
+        public string? TipoContrato { get; set; }
+         
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("numInt")]

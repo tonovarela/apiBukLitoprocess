@@ -53,6 +53,17 @@ public class ColaboradorDTO
 
     public string?  Alergias { get; set; }
 
+    public string? PersonalCuenta { get; set; }
+
+
+    public string? NumeroHijos { get; set; }
+
+    public string? Sindicato { get; set; }
+
+    public string?  TipoContrato { get; set; }
+
+    public string? PeriodoTipo { get; set; }
+
 
 
     
@@ -121,7 +132,15 @@ public class ColaboradorDTO
 
  public string? ConceptoBaja { get; set; }
 
- public double Salario { get; set; }
+ public double SalarioDiario { get; set; }
+
+ public string? Banco { get; set; }
+
+ public string? FactorJornada { get; set; }
+
+
+
+
 
 
 

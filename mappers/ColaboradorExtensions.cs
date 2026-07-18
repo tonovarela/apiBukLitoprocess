@@ -6,6 +6,21 @@ namespace apiBukLitoprocess.mappers;
 
 public static class ColaboradorExtensions
 {
+    static Dictionary<string, string> equivalenciasBancos = new Dictionary<string, string>
+    {
+        { "BBVA Bancomer", "BANCOMER" },
+        { "Citibanamex", "BANAMEX" },
+        { "Banco Azteca", "BANCO AZTECA" },
+        { "Scotiabank", "SCOTIABANK" },
+        { "Santander", "SANTANDER" },
+    };
+
+        static Dictionary<string, string> equivalenciasContratos = new Dictionary<string, string>
+    {
+        { "Sindicalizados 1", "SINDICATO INDUSTRIAL" },
+        { "Sindicalizados 2", "SINDICATO INDUSTRIAL" }        
+    };
+
      public static ColaboradorDTO ToColaboradorDTO(this ColaboradorResponse colaborador)
     {        
          return new ColaboradorDTO
@@ -77,8 +92,21 @@ public static class ColaboradorExtensions
 
             FechaAlta = colaborador.active_since ,
             FechaBaja = colaborador.active_until,
-            Salario = colaborador.current_job?.wage  ?? 0,
-            Estado = colaborador.custom_attributes?.lugarNacimiento ?? String.Empty,            
+            SalarioDiario = (colaborador.current_job?.wage  ?? 0) / 30,
+            Estado = colaborador.custom_attributes?.lugarNacimiento ?? String.Empty,
+            Banco = colaborador.bank != null ? (equivalenciasBancos.TryGetValue(colaborador.bank, out var bancoEquivalente) ? bancoEquivalente : colaborador.bank) : String.Empty,
+            PersonalCuenta = colaborador.client_number,
+            NumeroHijos = colaborador.custom_attributes?.NumeroHijos ?? String.Empty,
+            Sindicato = colaborador.custom_attributes?.TipoContrato != null ? (equivalenciasContratos.TryGetValue(colaborador.custom_attributes.TipoContrato, out var contratoEquivalente) ? contratoEquivalente : "Confianza") : String.Empty,
+            TipoContrato=colaborador.current_job?.worker_kind ?? String.Empty,
+            PeriodoTipo = colaborador.period_type != null ? (colaborador.period_type == "weekly" ? "Semanal" : "Quincenal") : String.Empty,
+            FactorJornada = colaborador.custom_attributes?.FactorJornada ?? String.Empty
+        
+            
+            
+
+
+
 
 
         };
