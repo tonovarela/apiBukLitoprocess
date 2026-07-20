@@ -19,14 +19,14 @@ public class ColaboradorRepository : IColaboradorRepository
 
     public async Task ActualizarCampoExtra(string personal, string campo, string valor)
     {
-        using var connection = _dbConnectionFactory.CreateConnection();
-        {
-            var query = $"UPDATE dbo.PersonalCampoExtra SET {campo}=@valor WHERE personal=@personal";
-            var command = new SqlCommand(query, (SqlConnection)connection);
-            command.Parameters.AddWithValue("@valor", valor ?? (object)DBNull.Value);
-            command.Parameters.AddWithValue("@personal", personal);
-            await command.ExecuteNonQueryAsync();
-        }
+        // using var connection = _dbConnectionFactory.CreateConnection();
+        // {
+        //     var query = $"UPDATE dbo.PersonalCampoExtra SET {campo}=@valor WHERE personal=@personal";
+        //     var command = new SqlCommand(query, (SqlConnection)connection);
+        //     command.Parameters.AddWithValue("@valor", valor ?? (object)DBNull.Value);
+        //     command.Parameters.AddWithValue("@personal", personal);
+        //     await command.ExecuteNonQueryAsync();
+        // }
     }
 
 
@@ -65,7 +65,7 @@ public class ColaboradorRepository : IColaboradorRepository
                                 Empresa=@Empresa,
                                 Estado=@Estado,
                                 EstadoCivil=@EstadoCivil,
-                                FactorJornada=@FactorJornada,
+                                Jornada=@FactorJornada,
                                 FechaAlta = @FechaAlta,
                                 FechaNacimiento=@FechaNacimiento,
                                 FormaPago=@FormaPago,
@@ -314,7 +314,7 @@ public class ColaboradorRepository : IColaboradorRepository
                 Estado,
                 EstadoCivil,
                 Estatus,
-                FactorJornada,
+                Jornada,
                 FechaAlta,
                 FechaNacimiento,
                 FormaPago,
