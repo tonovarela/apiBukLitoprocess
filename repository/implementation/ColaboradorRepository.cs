@@ -97,7 +97,8 @@ public class ColaboradorRepository : IColaboradorRepository
                                 TipoContrato = @TipoContrato,
                                 TipoSueldo=@TipoSueldo,
                                 usuario=@Id,
-                                ZonaEconomica=@ZonaEconomica
+                                ZonaEconomica=@ZonaEconomica,
+                                Categoria=@Categoria
                                 where personal=@personal";
                 var command = new SqlCommand(query, (SqlConnection)connection);
                 command.Parameters.AddWithValue("@CtaDinero", "PAGOS7631");
@@ -156,6 +157,7 @@ public class ColaboradorRepository : IColaboradorRepository
                 command.Parameters.AddWithValue("@FactorJornada", colaborador.FactorJornada ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@TipoContrato", colaborador.TipoContrato ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Sindicato", colaborador.Sindicato ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Categoria", colaborador.Categoria ?? (object)DBNull.Value);
 
                 await command.ExecuteNonQueryAsync();
 
@@ -296,6 +298,7 @@ public class ColaboradorRepository : IColaboradorRepository
                 Beneficiario3,
                 Beneficiario3Nacimiento,
                 BeneficiarioNacimiento,
+                Categoria,
                 CentroCostos,
                 CodigoPostal,
                 Colonia,
@@ -357,6 +360,7 @@ public class ColaboradorRepository : IColaboradorRepository
                 @Beneficiario3,
                 @BeneficiarioNacimiento3,
                 @BeneficiarioNacimiento1,
+                @Categoria,
                 @CentroCostos,
                 @CodigoPostal,
                 @Colonia,
@@ -470,6 +474,7 @@ public class ColaboradorRepository : IColaboradorRepository
             command.Parameters.AddWithValue("@NumeroHijos", colaborador.NumeroHijos ?? (object)DBNull.Value);
             //command.Parameters.AddWithValue("@Salario", colaborador.Salario / 30);
             command.Parameters.AddWithValue("@PeriodoTipo", colaborador.PeriodoTipo ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@Categoria", colaborador.Categoria ?? (object)DBNull.Value);
             await command.ExecuteNonQueryAsync();
 
             await ActualizarCampoExtra(nuevoIdColaborador.ToString(), "MailLitoprocess", colaborador.Correo_Corporativo ?? "");
