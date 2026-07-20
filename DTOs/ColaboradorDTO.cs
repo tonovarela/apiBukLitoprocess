@@ -16,7 +16,7 @@ public class ColaboradorDTO
 
     public required string RFC { get; set; }
 
-    public  string? Correo { get; set; }
+    public  string? Correo_Corporativo { get; set; }
 
      public string? Correo_Personal { get; set; }
     public string? NivelAcademico { get; set; }
@@ -76,7 +76,7 @@ public class ColaboradorDTO
     
      public string? ReportaA { get; set; }
 
-     public string? Departamento { get; set; }
+    public string? Categoria { get; set; }
 
 
 
@@ -158,8 +158,7 @@ public class ColaboradorDTO
                $"ApellidoMaterno: {ApellidoMaterno}, " +
                $"CURP: {CURP}, " +
                $"RFC: {RFC}, " +
-               $"NSS: {NSS}, " +
-               $"Correo: {Correo}, " +
+               $"NSS: {NSS}, " +               
                $"FechaNacimiento: {FechaNacimiento}, " +
                $"Sexo: {Sexo}, " +
                $"EstadoCivil: {EstadoCivil}, " +

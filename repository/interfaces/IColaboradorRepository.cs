@@ -10,7 +10,8 @@ public interface IColaboradorRepository
 
 public Task Actualizar(ColaboradorDTO colaborador);
 
-public Task<ColaboradorDTO?> BuscarPorId(int id);
+
+public Task<Boolean> ExisteColaborador(string id);
 
 public Task  Actualizar(long id, string idColaborador);
 
@@ -23,7 +24,7 @@ public Task<int> ObtenerSiguienteClavePersonal();
 public Task RegistrarBaja(string idPersonalBuk, string conceptoBaja,string fechaBaja);
 
 
-public Task<String> ObtenerEquivalenciaArea(long idAreaBuk);  
+//public Task<String> ObtenerEquivalenciaArea(long idAreaBuk);  
 
  public Task RegistrarSolicitudesVacaciones(List<SolicitudDTO> solicitudes);
 

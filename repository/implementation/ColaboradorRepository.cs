@@ -3,6 +3,7 @@ using apiBukLitoprocess.Data;
 using apiBukLitoprocess.DTOs;
 using apiBukLitoprocess.repository.interfaces;
 using Microsoft.Data.SqlClient;
+using Microsoft.Identity.Client;
 
 namespace apiBukLitoprocess.repository.implementation;
 
@@ -16,77 +17,99 @@ public class ColaboradorRepository : IColaboradorRepository
         _dbConnectionFactory = dbConnectionFactory;
     }
 
+    public async Task ActualizarCampoExtra(string personal, string campo, string valor)
+    {
+        using var connection = _dbConnectionFactory.CreateConnection();
+        {
+            var query = $"UPDATE dbo.PersonalCampoExtra SET {campo}=@valor WHERE personal=@personal";
+            var command = new SqlCommand(query, (SqlConnection)connection);
+            command.Parameters.AddWithValue("@valor", valor ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@personal", personal);
+            await command.ExecuteNonQueryAsync();
+        }
+    }
+
 
     public async Task Actualizar(ColaboradorDTO colaborador)
     {
 
-    
-           string? reportaA =await BuscarPersonalPorRFC(colaborador.RFC);
 
-
+        string? reportaA = await BuscarPersonalPorRFC(colaborador.RFC);        
+        string  departamento = await ObtenerDepartamento(colaborador.CentroCostos ?? "");
+        await ActualizarCampoExtra(colaborador.IdColaborador, "MailLitoprocess", colaborador.Correo_Corporativo ?? "");
         try
         {
 
             using var connection = _dbConnectionFactory.CreateConnection();
             {
-                var query = @"UPDATE dbo.Personal set 
-                                usuario=@Id,
-                                ApellidoPaterno=@ApellidoPaterno,
+                var query = @"UPDATE dbo.Personal set
                                 ApellidoMaterno=@ApellidoMaterno,
+                                ApellidoPaterno=@ApellidoPaterno,
+                                Beneficiario = @Beneficiario1,
+                                Beneficiario2 = @Beneficiario2,
+                                Beneficiario2Nacimiento = @BeneficiarioNacimiento2,
+                                Beneficiario3 = @Beneficiario3,
+                                Beneficiario3Nacimiento = @BeneficiarioNacimiento3,
+                                BeneficiarioNacimiento = @BeneficiarioNacimiento1,
+                                CentroCostos = @CentroCostos,
+                                CodigoPostal=@CodigoPostal,
+                                Colonia=@Colonia,
+                                CtaDinero=@CtaDinero,
+                                Delegacion=@Delegacion,
+                                Departamento = @Departamento,
+                                DiasPeriodo=@DiasPeriodo,
+                                Direccion=@Direccion,
+                                DireccionNumero = @NumExt,
+                                DireccionNumeroInt = @NumInt,
+                                email=@CorreoPersonal,
+                                Empresa=@Empresa,
+                                Estado=@Estado,
+                                EstadoCivil=@EstadoCivil,
+                                FactorJornada=@FactorJornada,
+                                FechaAlta = @FechaAlta,
+                                FechaNacimiento=@FechaNacimiento,
+                                FormaPago=@FormaPago,
+                                Hijos = @NumeroHijos,
+                                Moneda=@Moneda,
+                                MovNomina=@MovNomina,
+                                Nacionalidad=@Nacionalidad,
+                                NivelAcademico=@NivelAcademico,
                                 Nombre=@Nombre,
-                                SueldoDiario=@SalarioDiario,
+                                Pais=@Pais,
+                                Parentesco = @ParentescoBeneficiario1,
+                                Parentesco2 = @ParentescoBeneficiario2,
+                                Parentesco3 = @ParentescoBeneficiario3,
+                                PeriodoTipo=@PeriodoTipo,
+                                Poblacion=@Poblacion,
+                                Porcentaje = @PorcentajeBeneficiario1,
+                                Porcentaje2 = @PorcentajeBeneficiario2,
+                                Porcentaje3 = @PorcentajeBeneficiario3,
+                                Puesto = @Puesto,
                                 Registro=@Curp,
                                 Registro2=@Rfc,
                                 Registro3=@NSS,
-                                email=@Correo,                                
-                                Direccion=@Direccion,
-                                Colonia=@Colonia,
-                                Delegacion=@Delegacion,
-                                Poblacion=@Poblacion,
-                                Estado=@Estado,
                                 ReportaA=@ReportaA,
-                                PeriodoTipo=@PeriodoTipo,
-                                Pais=@Pais,
-                                CodigoPostal=@CodigoPostal,
-                                FactorJornada=@FactorJornada,
-                                Telefono=@Telefono,
-                                FechaNacimiento=@FechaNacimiento,                                
-                                NivelAcademico=@NivelAcademico,
-                                ZonaEconomica='A',
-                                FormaPago='Nomina Transferencia Electronica',
-                                CtaDinero='PAGOS7631',
-                                Nacionalidad='Mexicana',
                                 Sexo=@Sexo,
-                                Moneda='Pesos',
-                                TipoSueldo='Variable',
-                                EstadoCivil=@EstadoCivil,
-                                Beneficiario = @Beneficiario1,
-                                BeneficiarioNacimiento = @BeneficiarioNacimiento1,
-                                Parentesco = @ParentescoBeneficiario1,
-                                Porcentaje = @PorcentajeBeneficiario1,
-                                Beneficiario2 = @Beneficiario2,
-                                Beneficiario2Nacimiento = @BeneficiarioNacimiento2,                                
-                                Parentesco2 = @ParentescoBeneficiario2,
-                                Porcentaje2 = @PorcentajeBeneficiario2,
-                                Beneficiario3 = @Beneficiario3,
-                                Beneficiario3Nacimiento = @BeneficiarioNacimiento3,
-                                Parentesco3 = @ParentescoBeneficiario3,
-                                Porcentaje3 = @PorcentajeBeneficiario3,
-                                DireccionNumero = @NumExt,
-                                DireccionNumeroInt = @NumInt,
-                                MovNomina='Nomina Lito',
-                                DiasPeriodo='Dias Periodo',
-                                Empresa='LITO',
-                                SucursalTrabajo=0,
-                                CentroCostos = @CentroCostos,
-                                Puesto = @Puesto,            
+                                Sindicato = @Sindicato,
+                                SucursalTrabajo=@SucursalTrabajo,
+                                SueldoDiario=@SalarioDiario,
+                                Telefono=@Telefono,
                                 TipoContrato = @TipoContrato,
-                                Sindicato = @Sindicato,                         
-                                Departamento = @Departamento,
-                                FechaAlta = @FechaAlta,
-                                Hijos = @NumeroHijos                                
+                                TipoSueldo=@TipoSueldo,
+                                usuario=@Id,
+                                ZonaEconomica=@ZonaEconomica
                                 where personal=@personal";
                 var command = new SqlCommand(query, (SqlConnection)connection);
+                command.Parameters.AddWithValue("@CtaDinero", "PAGOS7631");
+                command.Parameters.AddWithValue("@DiasPeriodo", "Dias Periodo");
+                command.Parameters.AddWithValue("@Empresa", "LITO");
+                command.Parameters.AddWithValue("@FormaPago", "Nomina Transferencia Electronica");
+                command.Parameters.AddWithValue("@Moneda", "Pesos");
+                command.Parameters.AddWithValue("@MovNomina", "Nomina Lito");
+                command.Parameters.AddWithValue("@Nacionalidad", "Mexicana");
+                command.Parameters.AddWithValue("@SucursalTrabajo", 0);
+                command.Parameters.AddWithValue("@TipoSueldo", "Variable");
+                command.Parameters.AddWithValue("@ZonaEconomica", "A");
                 command.Parameters.AddWithValue("@Id", colaborador.id);
                 command.Parameters.AddWithValue("@ApellidoPaterno", colaborador.ApellidoPaterno);
                 command.Parameters.AddWithValue("@ApellidoMaterno", colaborador.ApellidoMaterno);
@@ -94,7 +117,7 @@ public class ColaboradorRepository : IColaboradorRepository
                 command.Parameters.AddWithValue("@personal", colaborador.IdColaborador);
                 command.Parameters.AddWithValue("@Curp", colaborador.CURP);
                 command.Parameters.AddWithValue("@Rfc", colaborador.RFC);
-                command.Parameters.AddWithValue("@Correo", colaborador.Correo_Personal);
+                command.Parameters.AddWithValue("@CorreoPersonal", colaborador.Correo_Personal);
                 command.Parameters.AddWithValue("@NSS", colaborador.NSS);
                 command.Parameters.AddWithValue("@Direccion", colaborador.Direccion);
                 command.Parameters.AddWithValue("@Colonia", colaborador.Colonia);
@@ -124,7 +147,7 @@ public class ColaboradorRepository : IColaboradorRepository
                 command.Parameters.AddWithValue("@NumInt", colaborador.NumInt ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@CentroCostos", colaborador.CentroCostos ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Puesto", colaborador.Puesto ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Departamento", colaborador.Departamento ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Departamento", departamento ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@FechaAlta", colaborador.FechaAlta ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@SalarioDiario", colaborador.SalarioDiario);
                 command.Parameters.AddWithValue("@NumeroHijos", colaborador.NumeroHijos ?? (object)DBNull.Value);
@@ -157,7 +180,7 @@ public class ColaboradorRepository : IColaboradorRepository
     }
 
 
-   public async Task<string?> BuscarPersonalPorRFC(string rfc)
+    public async Task<string?> BuscarPersonalPorRFC(string rfc)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         {
@@ -173,44 +196,27 @@ public class ColaboradorRepository : IColaboradorRepository
         return null;
     }
 
-    public async Task<ColaboradorDTO?> BuscarPorId(int id)
+
+
+    public async Task<string> ObtenerDepartamento(string centro_costos)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         {
-            var query = "SELECT * FROM dbo.Personal where usuario=@Id";
+            var query = @"
+                    select  
+                    Descripcion as Departamento from centrocostos 
+                    where estatus = 'alta'
+                    and centrocostos=@centro_costos";
             var command = new SqlCommand(query, (SqlConnection)connection);
-            command.Parameters.AddWithValue("@Id", id);
+            command.Parameters.AddWithValue("@centro_costos", centro_costos);
             using var reader = await command.ExecuteReaderAsync();
             if (reader.Read())
             {
-                return new ColaboradorDTO
-                {
-                    id = reader["usuario"] as long?,
-                    Nombre = reader["Nombre"].ToString() ?? "Sin nombre",
-                    ApellidoPaterno = reader["ApellidoPaterno"].ToString() ?? "Sin apellido paterno",
-                    ApellidoMaterno = reader["ApellidoMaterno"].ToString() ?? "Sin apellido materno",
-                    IdColaborador = reader["personal"].ToString() ?? "Sin id colaborador",
-                    CURP = reader["Registro"].ToString() ?? "Sin curp",
-                    RFC = reader["Registro2"].ToString() ?? "Sin rfc",
-                    Correo = reader["email"].ToString() ?? "Sin correo",
-                    NSS = reader["Registro3"].ToString() ?? "Sin NSS",
-                    Direccion = reader["Direccion"].ToString() ?? "Sin dirección",
-                    Colonia = reader["Colonia"].ToString() ?? "Sin colonia",
-                    Delegacion = reader["Delegacion"].ToString() ?? "Sin delegación",
-                    Poblacion = reader["Poblacion"].ToString() ?? "Sin población",
-                    Estado = reader["Estado"].ToString() ?? "Sin estado",
-                    Pais = reader["Pais"].ToString() ?? "Sin país",
-                    CodigoPostal = reader["CodigoPostal"].ToString() ?? "Sin código postal",
-                    Telefono = reader["Telefono"].ToString() ?? "Sin teléfono",
-                    FechaNacimiento = Convert.ToDateTime(reader["FechaNacimiento"]).ToString("yyyy-MM-dd"),
-                    EstadoCivil = reader["EstadoCivil"].ToString() ?? "Sin estado civil"
-                };
+                return reader["Departamento"].ToString() ?? String.Empty;
             }
-
-            return null;
         }
+        return String.Empty;
     }
-
     public async Task InsertarBitacora(BitacoraDTO bitacoraDTO)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
@@ -272,8 +278,9 @@ public class ColaboradorRepository : IColaboradorRepository
 
     public async Task Insertar(ColaboradorDTO colaborador, int nuevoIdColaborador)
     {
-         string? reportaA =await BuscarPersonalPorRFC(colaborador.RFC);
-     
+        string? reportaA = await BuscarPersonalPorRFC(colaborador.RFC);
+        string departamento = await ObtenerDepartamento(colaborador.CentroCostos ?? "");
+
         try
         {
             using var connection = _dbConnectionFactory.CreateConnection();
@@ -281,130 +288,141 @@ public class ColaboradorRepository : IColaboradorRepository
             var query = @"
             INSERT INTO dbo.Personal
             (
-                Personal,
-                Estatus,
-                Usuario,
-                Nombre,
-                ApellidoPaterno,
                 ApellidoMaterno,
-                SueldoDiario,
-                Registro,
-                Registro2,
-                email,
-                Registro3,
-                Direccion,
-                Colonia,
-                Delegacion,
-                Poblacion,
-                Estado,
-                Pais,
-                CodigoPostal,
-                FactorJornada,
-                Telefono,
-                FechaNacimiento,
-                NivelAcademico,
-                ZonaEconomica,
-                FormaPago,
-                CtaDinero,
-                Nacionalidad,
-                Sexo,
-                Moneda,
-                TipoSueldo,
-                EstadoCivil,
-                reportaA,
+                ApellidoPaterno,
                 Beneficiario,
-                BeneficiarioNacimiento,
-                Parentesco,
-                Porcentaje,
                 Beneficiario2,
                 Beneficiario2Nacimiento,
-                Parentesco2,
-                Porcentaje2,
                 Beneficiario3,
                 Beneficiario3Nacimiento,
-                Parentesco3,
-                Porcentaje3,
-                MovNomina,
-                DiasPeriodo,
-                Empresa,
-                SucursalTrabajo,
+                BeneficiarioNacimiento,
                 CentroCostos,
-                Puesto,
-                TipoContrato,
-                Sindicato,
-                Tipo,
-                FechaAlta,
+                CodigoPostal,
+                Colonia,
+                CtaDinero,
+                Delegacion,
                 Departamento,
+                DiasPeriodo,
+                Direccion,
                 DireccionNumero,
                 DireccionNumeroInt,
-                Hijos,                
-                PeriodoTipo
-
+                email,
+                Empresa,
+                Estado,
+                EstadoCivil,
+                Estatus,
+                FactorJornada,
+                FechaAlta,
+                FechaNacimiento,
+                FormaPago,
+                Hijos,
+                Moneda,
+                MovNomina,
+                Nacionalidad,
+                NivelAcademico,
+                Nombre,
+                Pais,
+                Parentesco,
+                Parentesco2,
+                Parentesco3,
+                PeriodoTipo,
+                Personal,
+                Poblacion,
+                Porcentaje,
+                Porcentaje2,
+                Porcentaje3,
+                Puesto,
+                Registro,
+                Registro2,
+                Registro3,
+                reportaA,
+                Sexo,
+                Sindicato,
+                SucursalTrabajo,
+                SueldoDiario,
+                Telefono,
+                Tipo,
+                TipoContrato,
+                TipoSueldo,
+                Usuario,
+                ZonaEconomica
             )
             VALUES
             (
-                @Personal,
-                'ALTA',
-                @Usuario,
-                @Nombre,
-                @ApellidoPaterno,
                 @ApellidoMaterno,
-                @SalarioDiario,
-                @Registro,
-                @Registro2,
-                @Email,
-                @Registro3,
-                @Direccion,
-                @Colonia,
-                @Delegacion,
-                @Poblacion,
-                @Estado,
-                @Pais,
-                @CodigoPostal,
-                @FactorJornada,
-                @Telefono,
-                @FechaNacimiento,
-                @NivelAcademico,
-                'A',
-                'Nomina Transferencia Electronica',
-                'PAGOS7631',
-                'Mexicana',
-                @Sexo,
-                'Pesos',
-                'Variable',
-                @EstadoCivil,
-                @ReportaA,
+                @ApellidoPaterno,
                 @Beneficiario1,
-                @BeneficiarioNacimiento1,
-                @ParentescoBeneficiario1,
-                @PorcentajeBeneficiario1,
                 @Beneficiario2,
                 @BeneficiarioNacimiento2,
-                @ParentescoBeneficiario2,
-                @PorcentajeBeneficiario2,
                 @Beneficiario3,
                 @BeneficiarioNacimiento3,
-                @ParentescoBeneficiario3,
-                @PorcentajeBeneficiario3,
-                'Nomina Lito',
-                'Dias Periodo',
-                'LITO',
-                0,
+                @BeneficiarioNacimiento1,
                 @CentroCostos,
-                @Puesto,
-                @TipoContrato,
-                @Sindicato,
-                'Empleado',
-                @FechaAlta,
+                @CodigoPostal,
+                @Colonia,
+                @CtaDinero,
+                @Delegacion,
                 @Departamento,
+                @DiasPeriodo,
+                @Direccion,
                 @DireccionNumero,
                 @DireccionNumeroInt,
-                @NumeroHijos,                
-                @PeriodoTipo
+                @Email,
+                @Empresa,
+                @Estado,
+                @EstadoCivil,
+                @Estatus,
+                @FactorJornada,
+                @FechaAlta,
+                @FechaNacimiento,
+                @FormaPago,
+                @NumeroHijos,
+                @Moneda,
+                @MovNomina,
+                @Nacionalidad,
+                @NivelAcademico,
+                @Nombre,
+                @Pais,
+                @ParentescoBeneficiario1,
+                @ParentescoBeneficiario2,
+                @ParentescoBeneficiario3,
+                @PeriodoTipo,
+                @Personal,
+                @Poblacion,
+                @PorcentajeBeneficiario1,
+                @PorcentajeBeneficiario2,
+                @PorcentajeBeneficiario3,
+                @Puesto,
+                @Registro,
+                @Registro2,
+                @Registro3,
+                @ReportaA,
+                @Sexo,
+                @Sindicato,
+                @SucursalTrabajo,
+                @SalarioDiario,
+                @Telefono,
+                @Tipo,
+                @TipoContrato,
+                @TipoSueldo,
+                @Usuario,
+                @ZonaEconomica
             );";
 
             using var command = new SqlCommand(query, (SqlConnection)connection);
 
+            command.Parameters.AddWithValue("@CtaDinero", "PAGOS7631");
+            command.Parameters.AddWithValue("@DiasPeriodo", "Dias Periodo");
+            command.Parameters.AddWithValue("@Empresa", "LITO");
+            command.Parameters.AddWithValue("@Estatus", "ALTA");
+            command.Parameters.AddWithValue("@FormaPago", "Nomina Transferencia Electronica");
+            command.Parameters.AddWithValue("@Moneda", "Pesos");
+            command.Parameters.AddWithValue("@MovNomina", "Nomina Lito");
+            command.Parameters.AddWithValue("@Nacionalidad", "Mexicana");
+            command.Parameters.AddWithValue("@SucursalTrabajo", 0);
+            command.Parameters.AddWithValue("@Tipo", "Empleado");
+            command.Parameters.AddWithValue("@TipoSueldo", "Variable");
+            command.Parameters.AddWithValue("@ZonaEconomica", "A");
             command.Parameters.AddWithValue("@Personal", nuevoIdColaborador);
             command.Parameters.AddWithValue("@Usuario", colaborador.id ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@Nombre", colaborador.Nombre ?? (object)DBNull.Value);
@@ -413,7 +431,7 @@ public class ColaboradorRepository : IColaboradorRepository
             command.Parameters.AddWithValue("@SalarioDiario", colaborador.SalarioDiario);
             command.Parameters.AddWithValue("@Registro", colaborador.CURP ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@Registro2", colaborador.RFC ?? (object)DBNull.Value);
-            command.Parameters.AddWithValue("@Email", colaborador.Correo ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@Email", colaborador.Correo_Personal ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@Registro3", colaborador.NSS ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@Direccion", colaborador.Direccion ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@Colonia", colaborador.Colonia ?? (object)DBNull.Value);
@@ -446,13 +464,15 @@ public class ColaboradorRepository : IColaboradorRepository
             command.Parameters.AddWithValue("@TipoContrato", colaborador.TipoContrato ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@Sindicato", colaborador.Sindicato ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@FechaAlta", colaborador.FechaAlta ?? (object)DBNull.Value);
-            command.Parameters.AddWithValue("@Departamento", colaborador.Departamento ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@Departamento", departamento ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@DireccionNumero", colaborador.NumExt ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@DireccionNumeroInt", colaborador.NumInt ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@NumeroHijos", colaborador.NumeroHijos ?? (object)DBNull.Value);
             //command.Parameters.AddWithValue("@Salario", colaborador.Salario / 30);
             command.Parameters.AddWithValue("@PeriodoTipo", colaborador.PeriodoTipo ?? (object)DBNull.Value);
             await command.ExecuteNonQueryAsync();
+
+            await ActualizarCampoExtra(nuevoIdColaborador.ToString(), "MailLitoprocess", colaborador.Correo_Corporativo ?? "");
         }
         catch (SqlException ex)
         {
@@ -462,19 +482,19 @@ public class ColaboradorRepository : IColaboradorRepository
 
     }
 
-    public async Task<string> ObtenerEquivalenciaArea(long idAreaBuk)
-    {
-        string sql = "select descripcionIntelisis from Buk.dbo.Departamentos where id=@idAreaBuk";
-        using var connection = _dbConnectionFactory.CreateConnection();
-        {
-            var command = new SqlCommand(sql, (SqlConnection)connection);
-            command.Parameters.AddWithValue("@idAreaBuk", idAreaBuk);
-            var result = await command.ExecuteScalarAsync();
-            return result?.ToString() ?? "";
-        }
+    // public async Task<string> ObtenerEquivalenciaArea(long idAreaBuk)
+    // {
+    //     string sql = "select descripcionIntelisis from Buk.dbo.Departamentos where id=@idAreaBuk";
+    //     using var connection = _dbConnectionFactory.CreateConnection();
+    //     {
+    //         var command = new SqlCommand(sql, (SqlConnection)connection);
+    //         command.Parameters.AddWithValue("@idAreaBuk", idAreaBuk);
+    //         var result = await command.ExecuteScalarAsync();
+    //         return result?.ToString() ?? "";
+    //     }
 
 
-    }
+    // }
 
     public async Task RegistrarSolicitudesVacaciones(List<SolicitudDTO> solicitudes)
     {
@@ -538,7 +558,7 @@ public class ColaboradorRepository : IColaboradorRepository
 
     public async Task RegistrarAusencias(List<AusenciaDTO> ausencias, string clasificacion)
     {
-         if (ausencias.Count == 0)
+        if (ausencias.Count == 0)
         {
             return;
         }
@@ -602,6 +622,18 @@ public class ColaboradorRepository : IColaboradorRepository
         {
             Console.WriteLine($"Error al preparar comando SQL para registrar ausencias: {ex.Message}");
             tx.Rollback();
+        }
+    }
+
+    public Task<bool> ExisteColaborador(string id)
+    {
+        using var connection = _dbConnectionFactory.CreateConnection();
+        {
+            var query = "SELECT COUNT(*) FROM dbo.Personal where usuario=@id";
+            var command = new SqlCommand(query, (SqlConnection)connection);
+            command.Parameters.AddWithValue("@id", id);
+            var result = (int)command.ExecuteScalar();
+            return Task.FromResult(result > 0);
         }
     }
 }

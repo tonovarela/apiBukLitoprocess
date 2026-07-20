@@ -415,6 +415,8 @@ namespace apiBukLitoprocess.responseApi
         public string? NumeroHijos { get; set; }
 
 
+               
+
         
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

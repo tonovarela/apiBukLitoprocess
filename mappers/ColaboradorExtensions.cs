@@ -32,7 +32,7 @@ public static class ColaboradorExtensions
             
             CURP = colaborador.curp ?? string.Empty,
             RFC = colaborador.rfc ?? string.Empty,
-            Correo = colaborador.email ?? string.Empty,
+            Correo_Corporativo = colaborador.email ?? string.Empty,
             Correo_Personal = colaborador.personal_email ?? string.Empty,
 
             NSS = colaborador.social_security ?? string.Empty,
@@ -100,7 +100,8 @@ public static class ColaboradorExtensions
             Sindicato = colaborador.custom_attributes?.TipoContrato != null ? (equivalenciasContratos.TryGetValue(colaborador.custom_attributes.TipoContrato, out var contratoEquivalente) ? contratoEquivalente : "Confianza") : String.Empty,
             TipoContrato=colaborador.current_job?.worker_kind ?? String.Empty,
             PeriodoTipo = colaborador.period_type != null ? (colaborador.period_type == "weekly" ? "Semanal" : "Quincenal") : String.Empty,
-            FactorJornada = colaborador.custom_attributes?.FactorJornada ?? String.Empty
+            FactorJornada = colaborador.custom_attributes?.FactorJornada ?? String.Empty,
+            Categoria = colaborador.custom_attributes?.TipoContrato ?? String.Empty,
         
             
             

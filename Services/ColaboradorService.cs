@@ -287,8 +287,8 @@ public class ColaboradorService
 
     private async Task ProcesarJobHireAsync(long idEmployeeBuk, ColaboradorDTO colaborador)
     {
-        var colaboradorDB = await _colaboradorRepository.BuscarPorId((int)idEmployeeBuk);
-        if (colaboradorDB is not null)
+        var colaboradorDB = await _colaboradorRepository.ExisteColaborador(idEmployeeBuk.ToString());
+        if (colaboradorDB)
             throw new InvalidOperationException("Colaborador ya existe en la base de datos");
 
         await RegistrarSiNoExisteAsync(colaborador);
@@ -311,9 +311,9 @@ public class ColaboradorService
             }
 
             ColaboradorDTO colaborador = response.data.ToColaboradorDTO();
-            long areaBuk = response.data.current_job?.area_id ?? 0;
-            string departamento = await _colaboradorRepository.ObtenerEquivalenciaArea(areaBuk);
-            colaborador.Departamento = departamento;
+            //long areaBuk = response.data.current_job?.area_id ?? 0;
+            //string departamento = await _colaboradorRepository.ObtenerEquivalenciaArea(areaBuk);
+            //colaborador.Departamento = departamento;
             return GetColaboradorResult.Ok(colaborador);
         }
         catch (JsonException ex)

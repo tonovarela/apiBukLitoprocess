@@ -25,25 +25,6 @@ public class AsistenciaService
     }
 
 
-    // public async Task<List<AsistenciaDTO>> ObtenerAsistencias(DateOnly desde)
-    // {
-    //     DateOnly hasta = DateOnly.FromDateTime(DateTime.Now);
-    //     var asistencias = new List<AsistenciaDTO>();
-    //     asistencias = await _restClient.ObtenerPaginadoAsync<ResponseAsistencia, AsistenciaRest, AsistenciaDTO>(
-    //        ApiClientNames.Asistencia,
-    //        page => page == 1
-    //            ? $"v2/asistencia-empresa?desde={desde:dd-MM-yyyy}&page_size=100"
-    //            : $"v2/asistencia-empresa?desde={desde:dd-MM-yyyy}&page={page}&page_size=100",
-    //        response => response.Data,
-    //        response => response.Pagination?.totalPages ?? 1,
-    //        asistencias => asistencias.ToAsistenciaDTO()
-    //        );
-    //     await _asistenciaRepository.InsertarAsistenciasIgnorandoDuplicados(asistencias);
-    //     return asistencias;
-
-    // }
-
-
     public async Task<List<JornadaDTO>> registroJornada(DateOnly desde, DateOnly? hasta = null)
     {
         hasta ??= DateOnly.FromDateTime(DateTime.Now.AddDays(10));
