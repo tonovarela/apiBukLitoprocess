@@ -17,12 +17,15 @@ public static class ColaboradorExtensions
 
         static Dictionary<string, string> equivalenciasContratos = new Dictionary<string, string>
     {
-        { "Sindicalizados 1", "SINDICATO INDUSTRIAL" },
-        { "Sindicalizados 2", "SINDICATO INDUSTRIAL" }        
+        { "Sindicalizados1", "SINDICATO INDUSTRIAL" },
+        { "Sindicalizados2", "SINDICATO INDUSTRIAL" }        
     };
 
      public static ColaboradorDTO ToColaboradorDTO(this ColaboradorResponse colaborador)
     {        
+        string banco = colaborador.bank != null ? (equivalenciasBancos.TryGetValue(colaborador.bank, out var bancoEquivalente) ? bancoEquivalente : colaborador.bank) : String.Empty;
+        Console.WriteLine($"Banco original: {colaborador.bank}, Banco mapeado: {banco}");
+
          return new ColaboradorDTO
         {
             id = colaborador.id,
@@ -94,8 +97,8 @@ public static class ColaboradorExtensions
             FechaBaja = colaborador.active_until,
             SalarioDiario = (colaborador.current_job?.wage  ?? 0) / 30,
             Estado = colaborador.custom_attributes?.lugarNacimiento ?? String.Empty,
-            Banco = colaborador.bank != null ? (equivalenciasBancos.TryGetValue(colaborador.bank, out var bancoEquivalente) ? bancoEquivalente : colaborador.bank) : String.Empty,
-            PersonalCuenta = colaborador.client_number,
+            Banco = banco,
+            PersonalCuenta = colaborador.account_number ?? String.Empty,
             NumeroHijos = colaborador.custom_attributes?.NumeroHijos ?? String.Empty,
             Sindicato = colaborador.custom_attributes?.TipoContrato != null ? (equivalenciasContratos.TryGetValue(colaborador.custom_attributes.TipoContrato, out var contratoEquivalente) ? contratoEquivalente : "Confianza") : String.Empty,
             TipoContrato=colaborador.current_job?.worker_kind ?? String.Empty,

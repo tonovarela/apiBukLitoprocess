@@ -1,8 +1,12 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "apiBukLitoprocess", "apiBukLitoprocess.csproj", "{684A9563-0953-423A-38AE-BDCB93426A5C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{77CB17C6-3A1C-4C28-91DE-9AC74CC65470}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "apiBukLitoprocess.Tests", "tests\apiBukLitoprocess.Tests\apiBukLitoprocess.Tests.csproj", "{89F626FD-8B4D-4755-BBD1-234CCDD85E69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,11 +18,18 @@ Global
 		{684A9563-0953-423A-38AE-BDCB93426A5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{684A9563-0953-423A-38AE-BDCB93426A5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{684A9563-0953-423A-38AE-BDCB93426A5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89F626FD-8B4D-4755-BBD1-234CCDD85E69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89F626FD-8B4D-4755-BBD1-234CCDD85E69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89F626FD-8B4D-4755-BBD1-234CCDD85E69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89F626FD-8B4D-4755-BBD1-234CCDD85E69}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A3BD95B5-B227-4BFF-9BB3-F3A6ADF53A11}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{89F626FD-8B4D-4755-BBD1-234CCDD85E69} = {77CB17C6-3A1C-4C28-91DE-9AC74CC65470}
 	EndGlobalSection
 EndGlobal

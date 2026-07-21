@@ -1,9 +1,10 @@
 using System.Data;
 using apiBukLitoprocess.Data;
 using apiBukLitoprocess.DTOs;
+using apiBukLitoprocess.helpers;
 using apiBukLitoprocess.repository.interfaces;
 using Microsoft.Data.SqlClient;
-using Microsoft.Identity.Client;
+
 
 namespace apiBukLitoprocess.repository.implementation;
 
@@ -27,6 +28,7 @@ public class ColaboradorRepository : IColaboradorRepository
         //     command.Parameters.AddWithValue("@personal", personal);
         //     await command.ExecuteNonQueryAsync();
         // }
+        await Task.Run(()=>{Console.WriteLine($"[DEBUG] ActualizarCampoExtra: personal={personal}, campo={campo}, valor={valor}");});        
     }
 
 
@@ -37,6 +39,7 @@ public class ColaboradorRepository : IColaboradorRepository
         string? reportaA = await BuscarPersonalPorRFC(colaborador.RFC);        
         string  departamento = await ObtenerDepartamento(colaborador.CentroCostos ?? "");
         await ActualizarCampoExtra(colaborador.IdColaborador, "MailLitoprocess", colaborador.Correo_Corporativo ?? "");
+        Console.WriteLine($"[DEBUG] Actualizar: personal={colaborador.IdColaborador},  banco={colaborador.Banco}, reportaA={reportaA}, departamento={departamento}");
         try
         {
 
@@ -80,6 +83,8 @@ public class ColaboradorRepository : IColaboradorRepository
                                 Parentesco2 = @ParentescoBeneficiario2,
                                 Parentesco3 = @ParentescoBeneficiario3,
                                 PeriodoTipo=@PeriodoTipo,
+                                PersonalSucursal=@PersonalSucursal,
+                                PersonalCuenta=@PersonalCuenta,
                                 Poblacion=@Poblacion,
                                 Porcentaje = @PorcentajeBeneficiario1,
                                 Porcentaje2 = @PorcentajeBeneficiario2,
@@ -101,6 +106,8 @@ public class ColaboradorRepository : IColaboradorRepository
                                 Categoria=@Categoria
                                 where personal=@personal";
                 var command = new SqlCommand(query, (SqlConnection)connection);
+                
+                command.CommandTimeout = 300;
                 command.Parameters.AddWithValue("@CtaDinero", "PAGOS7631");
                 command.Parameters.AddWithValue("@DiasPeriodo", "Dias Periodo");
                 command.Parameters.AddWithValue("@Empresa", "LITO");
@@ -136,6 +143,9 @@ public class ColaboradorRepository : IColaboradorRepository
                 command.Parameters.AddWithValue("@BeneficiarioNacimiento1", colaborador.FechaNacimientoBeneficiario1 ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@ParentescoBeneficiario1", colaborador.ParentescoBeneficiario1 ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@PorcentajeBeneficiario1", colaborador.PorcentajeBeneficiario1 ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@PersonalSucursal", colaborador.Banco ?? (object)DBNull.Value);    
+                command.Parameters.AddWithValue("@PersonalCuenta", colaborador.PersonalCuenta ?? (object)DBNull.Value);
+
                 command.Parameters.AddWithValue("@Beneficiario2", colaborador.Beneficiario2 ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@BeneficiarioNacimiento2", colaborador.FechaNacimientoBeneficiario2 ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@ParentescoBeneficiario2", colaborador.ParentescoBeneficiario2 ?? (object)DBNull.Value);
@@ -158,6 +168,10 @@ public class ColaboradorRepository : IColaboradorRepository
                 command.Parameters.AddWithValue("@TipoContrato", colaborador.TipoContrato ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Sindicato", colaborador.Sindicato ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Categoria", colaborador.Categoria ?? (object)DBNull.Value);
+
+                Console.WriteLine("[SQL PARA DBA] ------------------------------------------------");
+                Console.WriteLine(SqlQueryInterpolator.Interpolar(command));
+                Console.WriteLine("---------------------------------------------------------------");
 
                 await command.ExecuteNonQueryAsync();
 
@@ -330,6 +344,8 @@ public class ColaboradorRepository : IColaboradorRepository
                 Parentesco3,
                 PeriodoTipo,
                 Personal,
+                PersonalCuenta,
+                PersonalSucursal,
                 Poblacion,
                 Porcentaje,
                 Porcentaje2,
@@ -392,6 +408,8 @@ public class ColaboradorRepository : IColaboradorRepository
                 @ParentescoBeneficiario3,
                 @PeriodoTipo,
                 @Personal,
+                @PersonalCuenta,
+                @PersonalSucursal,
                 @Poblacion,
                 @PorcentajeBeneficiario1,
                 @PorcentajeBeneficiario2,
@@ -413,7 +431,8 @@ public class ColaboradorRepository : IColaboradorRepository
                 @ZonaEconomica
             );";
 
-            using var command = new SqlCommand(query, (SqlConnection)connection);
+            using var command = new SqlCommand(query, (SqlConnection)connection);            
+            command.CommandTimeout = 300;
 
             command.Parameters.AddWithValue("@CtaDinero", "PAGOS7631");
             command.Parameters.AddWithValue("@DiasPeriodo", "Dias Periodo");
@@ -475,6 +494,13 @@ public class ColaboradorRepository : IColaboradorRepository
             //command.Parameters.AddWithValue("@Salario", colaborador.Salario / 30);
             command.Parameters.AddWithValue("@PeriodoTipo", colaborador.PeriodoTipo ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@Categoria", colaborador.Categoria ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@PersonalSucursal", colaborador.Banco ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@PersonalCuenta", colaborador.PersonalCuenta ?? (object)DBNull.Value);
+
+            Console.WriteLine("[SQL PARA DBA] ------------------------------------------------");
+            Console.WriteLine(SqlQueryInterpolator.Interpolar(command));
+            Console.WriteLine("---------------------------------------------------------------");
+
             await command.ExecuteNonQueryAsync();
 
             await ActualizarCampoExtra(nuevoIdColaborador.ToString(), "MailLitoprocess", colaborador.Correo_Corporativo ?? "");

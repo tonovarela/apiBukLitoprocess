@@ -19,6 +19,14 @@ public class ColaboradorService
 {
     private readonly RestClientService _restClient;
     private readonly IColaboradorRepository _colaboradorRepository;
+    private readonly IConfiguration? _configuration;
+
+    /// <summary>
+    /// Cuando es true, GetColaboradorByIdBuk devuelve la respuesta emulada
+    /// (ver <see cref="BukEmulador"/>) en lugar de llamar al webservice real de Buk.
+    /// Se controla con la clave de configuración "BukApiSettings:Emular".
+    /// </summary>
+    private bool EmulacionBukActiva => _configuration?.GetValue<bool>("BukApiSettings:Emular") ?? false;
 
     private readonly HashSet<string> EventosValidos = new(StringComparer.OrdinalIgnoreCase){
         "employee_update",
@@ -26,10 +34,11 @@ public class ColaboradorService
         "job_termination",
         "job_movement"
         };
-    public ColaboradorService(RestClientService restClient, IColaboradorRepository colaboradorRepository)
+    public ColaboradorService(RestClientService restClient, IColaboradorRepository colaboradorRepository, IConfiguration? configuration = null)
     {
         _restClient = restClient;
         _colaboradorRepository = colaboradorRepository;
+        _configuration = configuration;
     }
 
 
@@ -153,8 +162,7 @@ public class ColaboradorService
     }
 
 
-
-  public async Task<List<AusenciaDTO>> ObtenerIncapacidades(int diasAtras)
+    public async Task<List<AusenciaDTO>> ObtenerIncapacidades(int diasAtras)
     {
             DateOnly fechaConsulta = DateOnly.FromDateTime(DateTime.Now.AddDays(diasAtras));
             Console.WriteLine($"Fecha consulta incapacidades: {fechaConsulta}");
@@ -299,12 +307,22 @@ public class ColaboradorService
         });
     }
 
-    private async Task<GetColaboradorResult> GetColaboradorByIdBuk(long idEmployeeBuk)
+    internal async Task<GetColaboradorResult> GetColaboradorByIdBuk(long idEmployeeBuk,Boolean forceAPICALL = false)
     {
         try
         {
-            Console.WriteLine($"Obteniendo colaborador de Buk para Employee ID: {ApiClientNames.Buk}");
-            var response = await _restClient.GetAsync<ResponseColaborador>(ApiClientNames.Buk, $"employees/{idEmployeeBuk}");
+            //Console.WriteLine($"Obteniendo colaborador de Buk para Employee ID: {ApiClientNames.Buk}");
+            ResponseColaborador? response;
+            if (EmulacionBukActiva && !forceAPICALL)
+            {
+                // Modo emulación: no se consume la API real, se usa el JSON embebido.
+                Console.WriteLine($"[EMULACIÓN Buk] Devolviendo colaborador emulado para Employee ID: {idEmployeeBuk}");                
+                response = BukEmulador.ObtenerResponse();
+            }
+            else
+            {
+                response = await _restClient.GetAsync<ResponseColaborador>(ApiClientNames.Buk, $"employees/{idEmployeeBuk}");
+            }
             if (response?.data == null)
             {
                 return GetColaboradorResult.Fail("Colaborador no encontrado", 404);
@@ -338,7 +356,7 @@ public class ColaboradorService
             return;
         }
 
-        var resultBoss = await GetColaboradorByIdBuk(colaborador.BossId.Value);
+        var resultBoss = await GetColaboradorByIdBuk(colaborador.BossId.Value, forceAPICALL: true);
         if (!resultBoss.IsError && resultBoss.colaborador is not null)
         {
             colaborador.ReportaA = resultBoss.colaborador.IdColaborador;
