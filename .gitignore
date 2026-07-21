@@ -43,5 +43,7 @@ TestResults/
 *.bak
 *.old
 
+Services/colaborador_emulado.json
+
 
 .fake
