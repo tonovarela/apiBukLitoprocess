@@ -16,6 +16,9 @@ RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
 COPY --from=build /app/publish .
 
+RUN mkdir -p /app/logs && chown -R appuser:appgroup /app/logs
+VOLUME ["/app/logs"]
+
 ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
 

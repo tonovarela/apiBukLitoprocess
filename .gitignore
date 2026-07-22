@@ -4,6 +4,9 @@
 bin/
 obj/
 
+# Logs
+logs/
+
 .env
 
 # Archivos de usuario de Visual Studio

@@ -83,8 +83,8 @@ dotnet test
 
 ## Docker
 ```bash
-docker build --platform linux/amd64 -t user/apibuklitoprocess:3.0.0 -t user/apibuklitoprocess:latest . \
-  && docker push user/apibuklitoprocess:3.0.0 \
+docker build --platform linux/amd64 -t user/apibuklitoprocess:6.0.0 -t user/apibuklitoprocess:latest . \
+  && docker push user/apibuklitoprocess:6.0.0 \
   && docker push user/apibuklitoprocess:latest
 ```
 

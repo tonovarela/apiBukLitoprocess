@@ -12,23 +12,29 @@ public class ColaboradorRepository : IColaboradorRepository
 {
 
     private readonly DbConnectionFactory _dbConnectionFactory;
+    private readonly ILogger<ColaboradorRepository> _logger;
+    private readonly ILogger _sqlLogger;
 
-    public ColaboradorRepository(DbConnectionFactory dbConnectionFactory)
+    public ColaboradorRepository(DbConnectionFactory dbConnectionFactory, ILogger<ColaboradorRepository> logger, ILoggerFactory loggerFactory)
     {
         _dbConnectionFactory = dbConnectionFactory;
+        _logger = logger;
+        _sqlLogger = loggerFactory.CreateLogger("SqlQueries");
     }
 
     public async Task ActualizarCampoExtra(string personal, string campo, string valor)
     {
-        // using var connection = _dbConnectionFactory.CreateConnection();
-        // {
-        //     var query = $"UPDATE dbo.PersonalCampoExtra SET {campo}=@valor WHERE personal=@personal";
-        //     var command = new SqlCommand(query, (SqlConnection)connection);
-        //     command.Parameters.AddWithValue("@valor", valor ?? (object)DBNull.Value);
-        //     command.Parameters.AddWithValue("@personal", personal);
-        //     await command.ExecuteNonQueryAsync();
-        // }
-        await Task.Run(()=>{Console.WriteLine($"[DEBUG] ActualizarCampoExtra: personal={personal}, campo={campo}, valor={valor}");});        
+        using var connection = _dbConnectionFactory.CreateConnection();
+        {
+            var query = $"Update CtoCampoExtra set Valor= @valor Where Tipo='Personal' and CampoExtra=@campo and clave = @personal";
+            var command = new SqlCommand(query, (SqlConnection)connection);
+            command.Parameters.AddWithValue("@valor", valor ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@personal", personal);
+            command.Parameters.AddWithValue("@campo", campo);
+            _sqlLogger.LogInformation("[SQL ActualizarCampoExtra] {Query}", SqlQueryInterpolator.Interpolar(command));
+            await command.ExecuteNonQueryAsync();
+        }
+        await Task.Run(()=>{Console.WriteLine($"[DEBUG] CtoCampoExtra: personal={personal}, campo={campo}, valor={valor}");});
     }
 
 
@@ -169,9 +175,7 @@ public class ColaboradorRepository : IColaboradorRepository
                 command.Parameters.AddWithValue("@Sindicato", colaborador.Sindicato ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Categoria", colaborador.Categoria ?? (object)DBNull.Value);
 
-                Console.WriteLine("[SQL PARA DBA] ------------------------------------------------");
-                Console.WriteLine(SqlQueryInterpolator.Interpolar(command));
-                Console.WriteLine("---------------------------------------------------------------");
+                _sqlLogger.LogInformation("[SQL Actualizar] {Query}", SqlQueryInterpolator.Interpolar(command));
 
                 await command.ExecuteNonQueryAsync();
 
@@ -179,7 +183,7 @@ public class ColaboradorRepository : IColaboradorRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error al actualizar colaborador  con id {colaborador.IdColaborador}: {ex.Message}");
+            _logger.LogError(ex, "Error al actualizar colaborador con id {IdColaborador}", colaborador.IdColaborador);
         }
     }
 
@@ -497,9 +501,7 @@ public class ColaboradorRepository : IColaboradorRepository
             command.Parameters.AddWithValue("@PersonalSucursal", colaborador.Banco ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@PersonalCuenta", colaborador.PersonalCuenta ?? (object)DBNull.Value);
 
-            Console.WriteLine("[SQL PARA DBA] ------------------------------------------------");
-            Console.WriteLine(SqlQueryInterpolator.Interpolar(command));
-            Console.WriteLine("---------------------------------------------------------------");
+            _sqlLogger.LogInformation("[SQL Insertar] {Query}", SqlQueryInterpolator.Interpolar(command));
 
             await command.ExecuteNonQueryAsync();
 
@@ -507,7 +509,7 @@ public class ColaboradorRepository : IColaboradorRepository
         }
         catch (SqlException ex)
         {
-            Console.WriteLine($"Error SQL al registrar colaborador {nuevoIdColaborador}: {ex.Message}");
+            _logger.LogError(ex, "Error SQL al registrar colaborador {NuevoIdColaborador}", nuevoIdColaborador);
             throw;
         }
 
