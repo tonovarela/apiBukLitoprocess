@@ -30,4 +30,8 @@ public Task RegistrarBaja(string idPersonalBuk, string conceptoBaja,string fecha
 
  public Task RegistrarAusencias(List<AusenciaDTO> ausencias,string clasificacion);
 
+ public Task RegistrarPermisosPendientes(List<AusenciaDTO> ausencias, string clasificacion);
+
+ public Task BorrarAusenciasPendientes();
+
 }

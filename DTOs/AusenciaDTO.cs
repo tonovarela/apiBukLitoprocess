@@ -17,6 +17,8 @@ public class AusenciaDTO
 
     public bool ConGoceSueldo { get; set; }
 
+    public string? estado { get; set; }
+
 
 
 

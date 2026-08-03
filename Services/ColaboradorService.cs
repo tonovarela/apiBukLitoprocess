@@ -150,7 +150,7 @@ public class ColaboradorService
             response => response.pagination?.TotalPages ?? 1,
             vacaciones => vacaciones
             );
-            Console.WriteLine($"Vacaciones obtenidas: {vacaciones.Count}");
+        Console.WriteLine($"Vacaciones obtenidas: {vacaciones.Count}");
 
         solicitudes = vacaciones.Where(vacaciones => vacaciones.PuedeMapearseASolicitud())
                                 .Select(vacaciones => vacaciones.toSolicitudDTO())
@@ -164,54 +164,69 @@ public class ColaboradorService
 
     public async Task<List<AusenciaDTO>> ObtenerIncapacidades(int diasAtras)
     {
-            DateOnly fechaConsulta = DateOnly.FromDateTime(DateTime.Now.AddDays(diasAtras));
-            Console.WriteLine($"Fecha consulta incapacidades: {fechaConsulta}");
-            DateOnly fechaFinConsulta = DateOnly.FromDateTime(DateTime.Now);
-            var incapacidades = new List<AusenciaDTO>();
-            var _incapacidades = await _restClient.ObtenerPaginadoAsync<ResponseIncapacidad, IncapacidadRest, IncapacidadRest>(
-                 ApiClientNames.Buk,
-                 page => page == 1
-                     ? $"absences/licence?from={fechaConsulta:yyyy-MM-dd}&to={fechaFinConsulta:yyyy-MM-dd}&page_size=100"
-                     : $"absences/licence?from={fechaConsulta:yyyy-MM-dd}&to={fechaFinConsulta:yyyy-MM-dd}&page_size=100&page={page}",
-                 response => response.Data,
-                 response => response.Pagination?.TotalPages ?? 1,
-                 ausencia => ausencia
-                 );
-            incapacidades = _incapacidades
-            .Where(p => p.Estado == "approved")
-                                 .Select(p => p.toAusenciaDTO())
-                                 .ToList();
+        DateOnly fechaConsulta = DateOnly.FromDateTime(DateTime.Now.AddDays(diasAtras));
+        Console.WriteLine($"Fecha consulta incapacidades: {fechaConsulta}");
+        DateOnly fechaFinConsulta = DateOnly.FromDateTime(DateTime.Now);
+        var incapacidades = new List<AusenciaDTO>();
+        var _incapacidades = await _restClient.ObtenerPaginadoAsync<ResponseIncapacidad, IncapacidadRest, IncapacidadRest>(
+             ApiClientNames.Buk,
+             page => page == 1
+                 ? $"absences/licence?from={fechaConsulta:yyyy-MM-dd}&to={fechaFinConsulta:yyyy-MM-dd}&page_size=100"
+                 : $"absences/licence?from={fechaConsulta:yyyy-MM-dd}&to={fechaFinConsulta:yyyy-MM-dd}&page_size=100&page={page}",
+             response => response.Data,
+             response => response.Pagination?.TotalPages ?? 1,
+             ausencia => ausencia
+             );
+        incapacidades = _incapacidades
+        .Where(p => p.Estado == "approved")
+                             .Select(p => p.toAusenciaDTO())
+                             .ToList();
 
-            await AsignarIDSIntelisis(incapacidades);
-            await _colaboradorRepository.RegistrarAusencias(incapacidades, "Incapacidad");
-            return incapacidades;
-        
+        await AsignarIDSIntelisis(incapacidades);
+        await _colaboradorRepository.RegistrarAusencias(incapacidades, "Incapacidad");
+        return incapacidades;
+
     }
 
     public async Task<List<AusenciaDTO>> ObtenerPermisos(int diasAtras)
     {
-            DateOnly fechaConsulta = DateOnly.FromDateTime(DateTime.Now.AddDays(diasAtras));
-            Console.WriteLine($"Fecha consulta permisos: {fechaConsulta}");
-            DateOnly fechaFinConsulta = DateOnly.FromDateTime(DateTime.Now);
-            var permisos = new List<AusenciaDTO>();
-            var _permisos = await _restClient.ObtenerPaginadoAsync<ResponsePermiso, PermisoRest, PermisoRest>(
-                 ApiClientNames.Buk,
-                 page => page == 1
-                     ? $"absences/permission?from={fechaConsulta:yyyy-MM-dd}&to={fechaFinConsulta:yyyy-MM-dd}&page_size=100"
-                     : $"absences/permission?from={fechaConsulta:yyyy-MM-dd}&to={fechaFinConsulta:yyyy-MM-dd}&page_size=100&page={page}",
-                 response => response.Data,
-                 response => response.Pagination?.TotalPages ?? 1,
-                 ausencia => ausencia
-                 );
-            permisos = _permisos
-            .Where(p => p.Estado == "approved")
-                                 .Select(p => p.toAusenciaDTO())
-                                 .ToList();
+        DateOnly fechaConsulta = DateOnly.FromDateTime(DateTime.Now.AddDays(diasAtras));
+        Console.WriteLine($"Fecha consulta permisos: {fechaConsulta}");
+        DateOnly fechaFinConsulta = DateOnly.FromDateTime(DateTime.Now);
+        var permisos = new List<AusenciaDTO>();
+        var _permisos = await _restClient.ObtenerPaginadoAsync<ResponsePermiso, PermisoRest, PermisoRest>(
+             ApiClientNames.Buk,
+             page => page == 1
+                 ? $"absences/permission?from={fechaConsulta:yyyy-MM-dd}&to={fechaFinConsulta:yyyy-MM-dd}&page_size=100"
+                 : $"absences/permission?from={fechaConsulta:yyyy-MM-dd}&to={fechaFinConsulta:yyyy-MM-dd}&page_size=100&page={page}",
+             response => response.Data,
+             response => response.Pagination?.TotalPages ?? 1,
+             ausencia => ausencia
+             );
+        permisos = _permisos
+                   .Select(p => p.toAusenciaDTO())
+                   .ToList();
 
-            await AsignarIDSIntelisis(permisos);
-            await _colaboradorRepository.RegistrarAusencias(permisos, "Permiso");
-            return permisos;
-        
+
+        await AsignarIDSIntelisis(permisos);
+
+        var permisosAprobados = permisos.Where(p => p.estado == "approved").ToList();
+        var permisosPendientes = permisos.Where(p => p.estado != "approved").ToList();
+
+        try
+        {
+            await _colaboradorRepository.RegistrarAusencias(permisosAprobados, "Permiso");
+            await _colaboradorRepository.BorrarAusenciasPendientes();
+            await _colaboradorRepository.RegistrarPermisosPendientes(permisosPendientes, "Permiso");
+        }
+        catch (Exception ex)
+        {
+            EventLogger.Error("Error al registrar permisos", ex, new { permisos, error = ex.GetBaseException().Message });
+        }
+
+
+        return permisos;
+
     }
 
 
@@ -249,7 +264,7 @@ public class ColaboradorService
         var distinctIds = solicitudes.Select(s => s.id_colaborador).Distinct().ToList();
         var cache = new Dictionary<long, string>();
 
-        var tasks = distinctIds.Select(async id => 
+        var tasks = distinctIds.Select(async id =>
         {
             var response = await GetColaboradorByIdBuk(id);
             var personalId = response?.colaborador?.IdColaborador ?? String.Empty;
@@ -274,7 +289,7 @@ public class ColaboradorService
         var distinctIds = solicitudes.Select(s => s.id_colaborador).Distinct().ToList();
         var cache = new Dictionary<long, string>();
 
-        var tasks = distinctIds.Select(async id => 
+        var tasks = distinctIds.Select(async id =>
         {
             var response = await GetColaboradorByIdBuk(id);
             var personalId = response?.colaborador?.IdColaborador ?? String.Empty;
@@ -307,7 +322,7 @@ public class ColaboradorService
         });
     }
 
-    internal async Task<GetColaboradorResult> GetColaboradorByIdBuk(long idEmployeeBuk,Boolean forceAPICALL = false)
+    internal async Task<GetColaboradorResult> GetColaboradorByIdBuk(long idEmployeeBuk, Boolean forceAPICALL = false)
     {
         try
         {
@@ -316,7 +331,7 @@ public class ColaboradorService
             if (EmulacionBukActiva && !forceAPICALL)
             {
                 // Modo emulación: no se consume la API real, se usa el JSON embebido.
-                Console.WriteLine($"[EMULACIÓN Buk] Devolviendo colaborador emulado para Employee ID: {idEmployeeBuk}");                
+                Console.WriteLine($"[EMULACIÓN Buk] Devolviendo colaborador emulado para Employee ID: {idEmployeeBuk}");
                 response = BukEmulador.ObtenerResponse();
             }
             else
@@ -329,9 +344,6 @@ public class ColaboradorService
             }
 
             ColaboradorDTO colaborador = response.data.ToColaboradorDTO();
-            //long areaBuk = response.data.current_job?.area_id ?? 0;
-            //string departamento = await _colaboradorRepository.ObtenerEquivalenciaArea(areaBuk);
-            //colaborador.Departamento = departamento;
             return GetColaboradorResult.Ok(colaborador);
         }
         catch (JsonException ex)

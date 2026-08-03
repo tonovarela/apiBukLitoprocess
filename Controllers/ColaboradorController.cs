@@ -76,14 +76,11 @@ public class ColaboradorController : ControllerBase
             diasAtras = 1;
         }
         diasAtras = diasAtras * -1;
-
         try
         {
-
             var permisos = await _colaboradorService.ObtenerPermisos(diasAtras);
             var ausencias = await _colaboradorService.ObtenerAusencias(diasAtras);
             var incapacidades = await _colaboradorService.ObtenerIncapacidades(diasAtras);
-
             return Ok(new
             {
                 success = true,

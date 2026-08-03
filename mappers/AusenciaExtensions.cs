@@ -59,7 +59,8 @@ public static class AusenciaExtensions
             justificacion = permiso.Justificacion,
             horaEntrada = permiso.Inicio,
             horaSalida = permiso.Fin            ,
-            ConGoceSueldo = permiso.ConGoceSueldo
+            ConGoceSueldo = permiso.ConGoceSueldo,
+            estado = permiso.Estado
         };
     }
 

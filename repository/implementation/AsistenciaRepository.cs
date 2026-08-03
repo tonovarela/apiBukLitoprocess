@@ -16,13 +16,36 @@ public class AsistenciaRepository : IAsistenciaRepository
         _dbConnectionFactory = dbConnectionFactory;
     }
 
+    // 2601 = indice unico duplicado, 2627 = violacion de PK/unique constraint.
+    // Cualquier otro numero es un error real que no debe ignorarse.
+    private static bool EsClaveDuplicada(SqlException ex) => ex.Number is 2601 or 2627;
+
+    // El rollback solo aplica si la transaccion sigue viva: si fallo el propio Commit o se
+    // cayo la conexion, tx queda zombie y Rollback() lanzaria una excepcion desde dentro del
+    // catch, ocultando el error original.
+    private static void RevertirTransaccion(SqlTransaction tx)
+    {
+        try
+        {
+            if (tx.Connection is not null)
+            {
+                tx.Rollback();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"No se pudo revertir la transaccion: {ex.Message}");
+        }
+    }
+
     public async Task EliminarJornadaDesdeFecha(DateOnly fecha)
     {
         //Console.WriteLine($"Eliminando asistencias desde la fecha: { fecha.ToString("yyyy-MM-dd")}");
         using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
-        string sql = $" DELETE FROM Buk.dbo.Jornada WHERE fecha >= '{ fecha.ToString("yyyy-MM-dd")}';";        
-        using var cmd = new SqlCommand(sql, connection);        
-        await  cmd.ExecuteNonQueryAsync();
+        const string sql = "DELETE FROM Buk.dbo.Jornada WHERE fecha >= @Fecha;";
+        using var cmd = new SqlCommand(sql, connection);
+        cmd.Parameters.Add("@Fecha", SqlDbType.DateTime).Value = fecha.ToDateTime(TimeOnly.MinValue);
+        await cmd.ExecuteNonQueryAsync();
     }
 
     // public async Task InsertarAsistenciasIgnorandoDuplicados(List<AsistenciaDTO> asistencias)
@@ -107,6 +130,7 @@ public class AsistenciaRepository : IAsistenciaRepository
             cmd.Parameters.Add("@Fin", SqlDbType.VarChar, 50);
             cmd.Parameters.Add("@Turno", SqlDbType.VarChar, 50);
             cmd.Parameters.Add("@Descanso", SqlDbType.VarChar, 50);
+            int insertadas = 0, duplicadas = 0, fallidas = 0;
             foreach (var a in jornadas)
             {
                 cmd.Parameters["@Id"].Value = a.Id_Jornada;
@@ -120,20 +144,26 @@ public class AsistenciaRepository : IAsistenciaRepository
                 try
                 {
                     await cmd.ExecuteNonQueryAsync();
+                    insertadas++;
+                }
+                catch (SqlException ex) when (EsClaveDuplicada(ex))
+                {
+                    duplicadas++;
                 }
                 catch (SqlException ex)
                 {
-                    Console.WriteLine(ex.Message);
-                    // Duplicate key (PK/Unique). Ignorar.
+                    fallidas++;
+                    Console.WriteLine($"Error al insertar jornada {a.Id_Jornada} (RFC {a.RFC}): {ex.Message}");
                 }
             }
 
             tx.Commit();
+            Console.WriteLine($"Jornadas: {insertadas} insertadas, {duplicadas} duplicadas, {fallidas} con error SQL, de {jornadas.Count} recibidas");
         }
-        catch
+        catch (Exception ex)
         {
-            Console.WriteLine("Error durante la inserción de asistencias. Realizando rollback.");
-            tx.Rollback();
+            Console.WriteLine($"Error durante la inserción de jornadas, realizando rollback: {ex.Message}");
+            RevertirTransaccion(tx);
             //throw;
         }
     }
@@ -169,6 +199,7 @@ public class AsistenciaRepository : IAsistenciaRepository
             cmd.Parameters.Add("@Tipo", SqlDbType.VarChar, 50);
             cmd.Parameters.Add("@Fecha", SqlDbType.DateTime);
 
+            int insertadas = 0, duplicadas = 0, fallidas = 0;
             foreach (var a in checadaDTOs)
             {
                 cmd.Parameters["@Id"].Value = a.Id_Checada;
@@ -185,20 +216,26 @@ public class AsistenciaRepository : IAsistenciaRepository
                 try
                 {
                     await cmd.ExecuteNonQueryAsync();
+                    insertadas++;
+                }
+                catch (SqlException ex) when (EsClaveDuplicada(ex))
+                {
+                    duplicadas++;
                 }
                 catch (SqlException ex)
                 {
-                    Console.WriteLine(ex.Message);
-                    // Duplicate key (PK/Unique). Ignorar.
+                    fallidas++;
+                    Console.WriteLine($"Error al insertar checada {a.Id_Checada} (RFC {a.RFC}): {ex.Message}");
                 }
             }
 
             tx.Commit();
+            Console.WriteLine($"Checadas: {insertadas} insertadas, {duplicadas} duplicadas, {fallidas} con error SQL, de {checadaDTOs.Count} recibidas");
         }
-        catch
+        catch (Exception ex)
         {
-            Console.WriteLine("Error durante la inserción de asistencias. Realizando rollback.");
-            tx.Rollback();
+            Console.WriteLine($"Error durante la inserción de checadas, realizando rollback: {ex.Message}");
+            RevertirTransaccion(tx);
             //throw;
         }
 
