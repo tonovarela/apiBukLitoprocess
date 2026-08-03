@@ -77,8 +77,7 @@ public class ColaboradorService
                     await _colaboradorRepository.Actualizar(colaborador);
                     break;
 
-                case "job_hire":
-                    //TODO: Pendiente el saber como colocar el departamento y puesto en el colaborador, ya que la API de Buk no los trae de forma directa, se tendría que obtener a través de otro endpoint o mapearlo de alguna forma con la información que se tiene del colaborador
+                case "job_hire":                    
                     await ProcesarJobHireAsync(idEmployeeBuk, colaborador);
                     break;
 
@@ -258,7 +257,6 @@ public class ColaboradorService
 
 
     #region Métodos privados
-
     private async Task AsignarIDSIntelisis(List<SolicitudDTO> solicitudes)
     {
         var distinctIds = solicitudes.Select(s => s.id_colaborador).Distinct().ToList();
@@ -282,7 +280,6 @@ public class ColaboradorService
             solicitud.personal = cache.GetValueOrDefault(solicitud.id_colaborador, String.Empty);
         }
     }
-
 
     private async Task AsignarIDSIntelisis(List<AusenciaDTO> solicitudes)
     {
@@ -383,8 +380,6 @@ public class ColaboradorService
         await _colaboradorRepository.Insertar(colaborador, nuevoCodigoPersonal);
     }
 
-
-
     private async Task RegistrarBitacoraAsync(BitacoraDTO bitacora)
     {
         try
@@ -396,6 +391,7 @@ public class ColaboradorService
             EventLogger.Error("Error al registrar bitácora", ex, new { bitacora, error = ex.GetBaseException().Message });
         }
     }
+    
     #endregion
 
 }
