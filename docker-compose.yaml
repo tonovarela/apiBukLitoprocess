@@ -1,5 +1,6 @@
 services:
   api:
+    image: tonovarela/apibuklitoprocess:7.0.1
     build:
       context: .
       dockerfile: Dockerfile
