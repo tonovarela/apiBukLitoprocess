@@ -48,7 +48,7 @@ public static class ColaboradorExtensions
             Sexo = colaborador.gender == "M" ? "Masculino" : "Femenino",
             Ext  =colaborador.custom_attributes?.Ext ?? String.Empty,            
 
-            IdColaborador = colaborador.custom_attributes?.idColaborador?.Trim() ?? "**",
+            IdColaborador = colaborador.custom_attributes?.idColaborador?.Trim() ?? "0",
             TipoColaborador = colaborador.custom_attributes?.tipoColaborador ?? String.Empty,
             Alergias = colaborador.custom_attributes?.Alergias ?? String.Empty,
             NumInt = colaborador.custom_attributes?.numInt ?? String.Empty,
