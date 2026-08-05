@@ -83,9 +83,9 @@ dotnet test
 
 ## Docker
 ```bash
-docker build --platform linux/amd64 -t user/apibuklitoprocess:6.0.0 -t user/apibuklitoprocess:latest . \
-  && docker push user/apibuklitoprocess:6.0.0 \
-  && docker push user/apibuklitoprocess:latest
+docker build --platform linux/amd64 -t tonovarela/apibuklitoprocess:7.0.1 -t tonovarela/apibuklitoprocess:latest . \
+  && docker push tonovarela/apibuklitoprocess:7.0.1 \
+  && docker push tonovarela/apibuklitoprocess:latest
 ```
 
 ## Licencia
