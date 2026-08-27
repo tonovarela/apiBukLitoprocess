@@ -135,9 +135,30 @@ public class ColaboradorService
     }
 
 
+   
+
+    
+    /// <summary>
+    /// Devuelve el lunes con el que inician las 3 semanas previas a la semana en curso
+    /// y el viernes con el que concluye la ultima de esas semanas.
+    /// </summary>
+    internal static (DateOnly Inicio, DateOnly Fin) CalcularMesAnterior(DateTimeOffset referencia)
+    {
+        // Lunes de la semana en curso: se retrocede segun el dia de la semana (domingo = 6)
+        int diasDesdeLunes = ((int)referencia.DayOfWeek + 6) % 7;
+        DateOnly lunesSemanaActual = DateOnly.FromDateTime(referencia.Date.AddDays(-diasDesdeLunes));
+
+        DateOnly inicio = lunesSemanaActual.AddDays(-21);   // lunes, 3 semanas atras
+        DateOnly fin = inicio.AddDays(20);                  // viernes de la tercera semana
+        return (inicio, fin);
+    }
+
+
     public async Task<List<SolicitudDTO>> ObtenerSolicitudesVacaciones()
     {
         DateOnly fechaConsulta = DateOnly.FromDateTime(DateTime.Now.AddDays(-50));
+
+
         var solicitudes = new List<SolicitudDTO>();
         Console.WriteLine($"Vacaciones obtenidas: Antes");
         var vacaciones = await _restClient.ObtenerPaginadoAsync<ResponseVacaciones, VacacionesRest, VacacionesRest>(
