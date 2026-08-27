@@ -148,7 +148,9 @@ public class ColaboradorRepository : IColaboradorRepository
                                 TipoSueldo=@TipoSueldo,
                                 usuario=@Id,
                                 ZonaEconomica=@ZonaEconomica,
-                                Categoria=@Categoria
+                                Categoria=@Categoria,
+                                FechaAntiguedad=@FechaAntiguedad,
+                                LugarNacimiento=@LugarNacimiento
                                 where personal=@personal";
                 using var command = new SqlCommand(query, connection);
 
@@ -213,6 +215,9 @@ public class ColaboradorRepository : IColaboradorRepository
                 command.Parameters.AddWithValue("@TipoContrato", colaborador.TipoContrato ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Sindicato", colaborador.Sindicato ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Categoria", colaborador.Categoria ?? (object)DBNull.Value);
+                
+                command.Parameters.AddWithValue("@FechaAntiguedad", colaborador.FechaAntiguedad ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@LugarNacimiento", colaborador.LugarNacimiento ?? (object)DBNull.Value);
 
                 _sqlLogger.LogInformation("[SQL Actualizar] {Query}", SqlQueryInterpolator.Interpolar(command));
 
@@ -397,7 +402,9 @@ public class ColaboradorRepository : IColaboradorRepository
                 TipoContrato,
                 TipoSueldo,
                 Usuario,
-                ZonaEconomica
+                ZonaEconomica,
+                FechaAntiguedad,
+                LugarNacimiento
             )
             VALUES
             (
@@ -461,7 +468,9 @@ public class ColaboradorRepository : IColaboradorRepository
                 @TipoContrato,
                 @TipoSueldo,
                 @Usuario,
-                @ZonaEconomica
+                @ZonaEconomica,
+                @FechaAntiguedad,
+                @LugarNacimiento
             );";
 
             using var command = new SqlCommand(query, connection);
@@ -528,6 +537,8 @@ public class ColaboradorRepository : IColaboradorRepository
             command.Parameters.AddWithValue("@Categoria", colaborador.Categoria ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@PersonalSucursal", colaborador.Banco ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@PersonalCuenta", colaborador.PersonalCuenta ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@FechaAntiguedad", colaborador.FechaAntiguedad ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@LugarNacimiento", colaborador.LugarNacimiento ?? (object)DBNull.Value);
 
             _sqlLogger.LogInformation("[SQL Insertar] {Query}", SqlQueryInterpolator.Interpolar(command));
 

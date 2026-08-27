@@ -105,13 +105,12 @@ public static class ColaboradorExtensions
             PeriodoTipo = colaborador.period_type != null ? (colaborador.period_type == "weekly" ? "Semanal" : "Quincenal") : String.Empty,
             FactorJornada = colaborador.custom_attributes?.FactorJornada ?? String.Empty,
             Categoria = colaborador.custom_attributes?.TipoContrato ?? String.Empty,
+
+            
+            LugarNacimiento = colaborador.custom_attributes?.lugarNacimiento ?? String.Empty,
+            FechaAntiguedad=colaborador.active_since
         
             
-            
-
-
-
-
 
         };
     }

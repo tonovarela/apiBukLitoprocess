@@ -83,6 +83,11 @@ public class ColaboradorDTO
     public long? BossId { get; set; }
 
 
+    public string? LugarNacimiento { get; set; }
+
+    public string? FechaAntiguedad { get; set; }
+
+
     
 
     #region Beneficiarios
