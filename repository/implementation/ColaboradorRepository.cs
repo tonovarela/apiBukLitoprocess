@@ -831,4 +831,22 @@ public class ColaboradorRepository : IColaboradorRepository
             throw;
         }
     }
+
+    public async Task BorrarVacacionesDesde(DateOnly fecha)
+    {
+        try
+        {
+            using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
+            var query = "DELETE FROM Buk.dbo.Vacaciones WHERE fecha_inicio >= @Fecha";
+            using var command = new SqlCommand(query, connection);
+            command.Parameters.Add("@Fecha", SqlDbType.DateTime).Value = fecha.ToDateTime(TimeOnly.MinValue);
+            var filas = await command.ExecuteNonQueryAsync();
+            Console.WriteLine($"[DEBUG] BorrarVacacionesDesde {fecha:yyyy-MM-dd}: {filas} filas eliminadas");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al borrar vacaciones desde {fecha}: {ex.Message}");
+            throw;
+        }
+    }
 }

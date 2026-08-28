@@ -113,7 +113,7 @@ public class ColaboradorController : ControllerBase
             var vacaciones = await _colaboradorService.ObtenerSolicitudesVacaciones();
             return Ok(new
             {
-                success = true,
+                success = true, 
                 statusCode = 200,
                 data = vacaciones
             });

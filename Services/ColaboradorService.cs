@@ -137,35 +137,28 @@ public class ColaboradorService
 
    
 
-    
-    /// <summary>
-    /// Devuelve el lunes con el que inician las 3 semanas previas a la semana en curso
-    /// y el viernes con el que concluye la ultima de esas semanas.
-    /// </summary>
-    internal static (DateOnly Inicio, DateOnly Fin) CalcularMesAnterior(DateTimeOffset referencia)
-    {
-        // Lunes de la semana en curso: se retrocede segun el dia de la semana (domingo = 6)
-        int diasDesdeLunes = ((int)referencia.DayOfWeek + 6) % 7;
-        DateOnly lunesSemanaActual = DateOnly.FromDateTime(referencia.Date.AddDays(-diasDesdeLunes));
+   
 
-        DateOnly inicio = lunesSemanaActual.AddDays(-21);   // lunes, 3 semanas atras
-        DateOnly fin = inicio.AddDays(20);                  // viernes de la tercera semana
-        return (inicio, fin);
+    internal static DateOnly UltimoTresLunesAnteriores(DateTimeOffset referencia)
+    {
+        int diasDesdeLunes = ((int)referencia.DayOfWeek + 6) % 7;
+        DateOnly lunesSemanaActual = DateOnly.FromDateTime(referencia.Date.AddDays(-diasDesdeLunes));            
+        DateOnly lunes = lunesSemanaActual.AddDays(-21);  
+        return lunes;
     }
 
 
     public async Task<List<SolicitudDTO>> ObtenerSolicitudesVacaciones()
     {
-        DateOnly fechaConsulta = DateOnly.FromDateTime(DateTime.Now.AddDays(-50));
-
+        DateOnly fechaInicial = UltimoTresLunesAnteriores(DateTimeOffset.Now);
 
         var solicitudes = new List<SolicitudDTO>();
         Console.WriteLine($"Vacaciones obtenidas: Antes");
         var vacaciones = await _restClient.ObtenerPaginadoAsync<ResponseVacaciones, VacacionesRest, VacacionesRest>(
             ApiClientNames.Buk,
             page => page == 1
-                ? $"vacations/requested?date={fechaConsulta:yyyy-MM-dd}&page_size=100&status=approved"
-                : $"vacations/requested?date={fechaConsulta:yyyy-MM-dd}&page_size=100&status=approved&page={page}",
+                ? $"vacations/requested?date={fechaInicial:yyyy-MM-dd}&page_size=100&status=approved"
+                : $"vacations/requested?date={fechaInicial:yyyy-MM-dd}&page_size=100&status=approved&page={page}",
             response => response.Data,
             response => response.pagination?.TotalPages ?? 1,
             vacaciones => vacaciones
@@ -177,6 +170,7 @@ public class ColaboradorService
                                 .ToList();
 
         await AsignarIDSIntelisis(solicitudes);
+        await _colaboradorRepository.BorrarVacacionesDesde(fechaInicial);
         await _colaboradorRepository.RegistrarSolicitudesVacaciones(solicitudes);
         return solicitudes;
     }
