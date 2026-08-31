@@ -479,7 +479,7 @@ public class ColaboradorRepository : IColaboradorRepository
             command.Parameters.AddWithValue("@CtaDinero", "PAGOS7631");
             command.Parameters.AddWithValue("@DiasPeriodo", "Dias Periodo");
             command.Parameters.AddWithValue("@Empresa", "LITO");
-            command.Parameters.AddWithValue("@Estatus", "ALTA");
+            command.Parameters.AddWithValue("@Estatus", "ASPIRANTE");
             command.Parameters.AddWithValue("@FormaPago", "Nomina Transferencia Electronica");
             command.Parameters.AddWithValue("@Moneda", "Pesos");
             command.Parameters.AddWithValue("@MovNomina", "Nomina Lito");
