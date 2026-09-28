@@ -36,6 +36,9 @@ public class AusenciaRest
     public required long EmployeeId { get; set; }
 
 
+    [JsonPropertyName("licence_number")]
+    public required string licencia { get; set; }
+
    [JsonPropertyName("days_count")]
     public float dias { get; set; }
 

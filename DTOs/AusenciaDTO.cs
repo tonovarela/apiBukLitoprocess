@@ -19,6 +19,7 @@ public class AusenciaDTO
 
     public string? estado { get; set; }
 
+    public string? licencia { get; set; }
 
 
 

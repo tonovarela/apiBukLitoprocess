@@ -38,6 +38,7 @@ public static class AusenciaExtensions
             fecha_inicio= ausencia.Fecha_inicio.ToString("yyyy-MM-dd"),
             fecha_fin = ausencia.Fecha_fin.ToString("yyyy-MM-dd"),
             justificacion = ausencia.Justificacion,
+            licencia = ausencia.licencia??"",
             horaEntrada = null,
             horaSalida = null ,
             ConGoceSueldo = ausencia.ConGoceSueldo           
@@ -57,7 +58,7 @@ public static class AusenciaExtensions
             fecha_inicio = permiso.Fecha_inicio.ToString("yyyy-MM-dd"),
             fecha_fin = permiso.Fecha_fin.ToString("yyyy-MM-dd"),
             justificacion = permiso.Justificacion,
-            horaEntrada = permiso.Inicio,
+            horaEntrada = permiso.Inicio,            
             horaSalida = permiso.Fin            ,
             ConGoceSueldo = permiso.ConGoceSueldo,
             estado = permiso.Estado
