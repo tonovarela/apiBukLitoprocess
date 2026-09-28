@@ -851,4 +851,22 @@ public class ColaboradorRepository : IColaboradorRepository
             throw;
         }
     }
+
+    public async Task BorrarAusenciasDesde(DateOnly fecha)
+    {
+        try
+        {
+            using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
+            var query = "DELETE FROM Buk.dbo.Ausencias WHERE fecha_inicio >= @Fecha";
+            using var command = new SqlCommand(query, connection);
+            command.Parameters.Add("@Fecha", SqlDbType.DateTime).Value = fecha.ToDateTime(TimeOnly.MinValue);
+            var filas = await command.ExecuteNonQueryAsync();
+            Console.WriteLine($"[DEBUG] BorrarAusenciasDesde {fecha:yyyy-MM-dd}: {filas} filas eliminadas");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al borrar ausencias desde {fecha}: {ex.Message}");
+            throw;
+        }
+    }
 }

@@ -29,6 +29,8 @@ public Task RegistrarBaja(string idPersonalBuk, string conceptoBaja,string fecha
 
 public Task BorrarVacacionesDesde(DateOnly fecha);
 
+public Task BorrarAusenciasDesde(DateOnly fecha);
+
  public Task RegistrarSolicitudesVacaciones(List<SolicitudDTO> solicitudes);
 
  public Task RegistrarAusencias(List<AusenciaDTO> ausencias,string clasificacion);

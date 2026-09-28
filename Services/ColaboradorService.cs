@@ -229,6 +229,8 @@ public class ColaboradorService
 
         try
         {
+        
+            await _colaboradorRepository.BorrarAusenciasDesde(fechaConsulta);
             await _colaboradorRepository.RegistrarAusencias(permisosAprobados, "Permiso");
             await _colaboradorRepository.BorrarAusenciasPendientes();
             await _colaboradorRepository.RegistrarPermisosPendientes(permisosPendientes, "Permiso");
@@ -266,6 +268,8 @@ public class ColaboradorService
                              .ToList();
 
         await AsignarIDSIntelisis(ausencias);
+        
+
         await _colaboradorRepository.RegistrarAusencias(ausencias, "Ausencia");
         return ausencias;
     }
