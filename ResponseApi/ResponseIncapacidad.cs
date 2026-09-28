@@ -34,6 +34,10 @@ public class IncapacidadRest
     [JsonPropertyName("justification")]
     public required string Justificacion { get; set; }
 
+    [JsonPropertyName("licence_number")]
+    public required string licencia { get; set; }
+
+    
     [JsonPropertyName("employee_id")]
     public required long EmployeeId { get; set; }
 

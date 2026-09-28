@@ -20,6 +20,7 @@ public static class AusenciaExtensions
             fecha_inicio= incapacidadRest.Fecha_inicio.ToString("yyyy-MM-dd"),
             fecha_fin = incapacidadRest.Fecha_fin.ToString("yyyy-MM-dd"),
             justificacion = incapacidadRest.Justificacion,
+            licencia = incapacidadRest.licencia,            
             horaEntrada = null,
             horaSalida = null ,
             ConGoceSueldo = false        
@@ -37,8 +38,7 @@ public static class AusenciaExtensions
             dias_proporcional = ausencia.dias_proporcional,
             fecha_inicio= ausencia.Fecha_inicio.ToString("yyyy-MM-dd"),
             fecha_fin = ausencia.Fecha_fin.ToString("yyyy-MM-dd"),
-            justificacion = ausencia.Justificacion,
-            licencia = ausencia.licencia??"",
+            justificacion = ausencia.Justificacion,            
             horaEntrada = null,
             horaSalida = null ,
             ConGoceSueldo = ausencia.ConGoceSueldo           

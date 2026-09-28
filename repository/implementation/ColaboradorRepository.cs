@@ -636,9 +636,9 @@ public class ColaboradorRepository : IColaboradorRepository
 
         const string sql = @"
         INSERT INTO Buk.dbo.Ausencias
-            (id_ausencia, id_colaborador,personal,justificacion, tipo, fecha_inicio,fecha_fin, hora_inicio, hora_fin, clasificacion,dias, dias_percent,goce_sueldo)
+            (id_ausencia, id_colaborador,personal,justificacion, tipo, fecha_inicio,fecha_fin, hora_inicio, hora_fin, clasificacion,dias, dias_percent,goce_sueldo,licencia)
         VALUES
-            (@IdAusencia, @IdColaborador, @Personal, @Justificacion, @Tipo, @FechaInicio, @FechaFin, @HoraEntrada, @HoraSalida, @Clasificacion, @Dias, @DiasProporcional, @ConGoceSueldo);";
+            (@IdAusencia, @IdColaborador, @Personal, @Justificacion, @Tipo, @FechaInicio, @FechaFin, @HoraEntrada, @HoraSalida, @Clasificacion, @Dias, @DiasProporcional, @ConGoceSueldo, @Licencia);";
 
         try
         {
@@ -657,6 +657,7 @@ public class ColaboradorRepository : IColaboradorRepository
             cmd.Parameters.Add("@Dias", SqlDbType.Float);
             cmd.Parameters.Add("@DiasProporcional", SqlDbType.Float);
             cmd.Parameters.Add("@ConGoceSueldo", SqlDbType.Bit);
+            cmd.Parameters.Add("@Licencia", SqlDbType.VarChar, 50);
             int insertadas = 0, duplicadas = 0, invalidas = 0, fallidas = 0;
             foreach (var s in ausencias)
             {
@@ -689,6 +690,7 @@ public class ColaboradorRepository : IColaboradorRepository
                 cmd.Parameters["@Dias"].Value = s.dias;
                 cmd.Parameters["@DiasProporcional"].Value = s.dias_proporcional;
                 cmd.Parameters["@ConGoceSueldo"].Value = s.ConGoceSueldo;
+                cmd.Parameters["@Licencia"].Value = s.licencia ?? (object)DBNull.Value;
 
                 try
                 {
