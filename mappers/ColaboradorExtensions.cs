@@ -25,6 +25,10 @@ public static class ColaboradorExtensions
     {        
         string banco = colaborador.bank != null ? (equivalenciasBancos.TryGetValue(colaborador.bank, out var bancoEquivalente) ? bancoEquivalente : colaborador.bank) : String.Empty;
         Console.WriteLine($"Banco original: {colaborador.bank}, Banco mapeado: {banco}");
+        string centroCostos = colaborador.custom_attributes?.centroCostos?.Split('|')[0] ?? String.Empty;
+
+
+
 
          return new ColaboradorDTO
         {
@@ -53,7 +57,8 @@ public static class ColaboradorExtensions
             Alergias = colaborador.custom_attributes?.Alergias ?? String.Empty,
             NumInt = colaborador.custom_attributes?.numInt ?? String.Empty,
             NumExt = colaborador.custom_attributes?.numExt ?? String.Empty,
-            CentroCostos = colaborador.current_job?.cost_center ?? String.Empty,
+            //CentroCostos = colaborador.current_job?.cost_center ?? String.Empty,
+            CentroCostos = centroCostos,
 
             // Datos de contacto de emergencia
             Beneficiario1 = colaborador.custom_attributes?.Beneficiario1 ?? String.Empty,

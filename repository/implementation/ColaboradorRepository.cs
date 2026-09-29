@@ -81,7 +81,8 @@ public class ColaboradorRepository : IColaboradorRepository
     {
 
 
-        string? reportaA = await BuscarPersonalPorRFC(colaborador.RFC);        
+        //string? reportaA = await BuscarPersonalPorRFC(colaborador.RFC);        
+        string? reportaA = colaborador.ReportaA;
         string  departamento = await ObtenerDepartamento(colaborador.CentroCostos ?? "");
         await ActualizarCampoExtra(colaborador.IdColaborador, "MailLitoprocess", colaborador.Correo_Corporativo ?? "");
         Console.WriteLine($"[DEBUG] Actualizar: personal={colaborador.IdColaborador},  banco={colaborador.Banco}, reportaA={reportaA}, departamento={departamento}");
@@ -332,7 +333,8 @@ public class ColaboradorRepository : IColaboradorRepository
 
     public async Task Insertar(ColaboradorDTO colaborador, int nuevoIdColaborador)
     {
-        string? reportaA = await BuscarPersonalPorRFC(colaborador.RFC);
+        string? reportaA = colaborador.ReportaA;
+        //await BuscarPersonalPorRFC(colaborador.RFC);
         string departamento = await ObtenerDepartamento(colaborador.CentroCostos ?? "");
 
         try

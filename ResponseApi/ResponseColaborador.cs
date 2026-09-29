@@ -577,6 +577,11 @@ namespace apiBukLitoprocess.responseApi
         [JsonConverter(typeof(StringCustomConverter))]
         [JsonPropertyName("tipoSangre")]
         public string? tipoSangre { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonConverter(typeof(StringCustomConverter))]
+        [JsonPropertyName("CentroCostos_Lito")]
+        public string? centroCostos { get; set; }
     }
 
     public partial class FamilyResponsability
