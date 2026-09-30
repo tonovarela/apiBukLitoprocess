@@ -55,7 +55,6 @@ public class ColaboradorDTO
 
     public string? PersonalCuenta { get; set; }
 
-
     public string? NumeroHijos { get; set; }
 
     public string? Sindicato { get; set; }
@@ -81,6 +80,8 @@ public class ColaboradorDTO
 
 
     public long? BossId { get; set; }
+
+    public string? RFCBoss { get; set; }
 
 
     public string? LugarNacimiento { get; set; }

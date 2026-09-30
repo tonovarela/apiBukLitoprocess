@@ -11,6 +11,8 @@ public interface IColaboradorRepository
 public Task Actualizar(ColaboradorDTO colaborador);
 
 
+public Task<string?> BuscarPersonalPorRFC(string rfc);
+
 public Task<Boolean> ExisteColaborador(string id);
 
 public Task  Actualizar(long id, string idColaborador);

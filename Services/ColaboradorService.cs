@@ -6,6 +6,7 @@ using apiBukLitoprocess.DTOs;
 using apiBukLitoprocess.mappers;
 using apiBukLitoprocess.repository.interfaces;
 using apiBukLitoprocess.responseApi;
+using Microsoft.Extensions.Primitives;
 
 namespace apiBukLitoprocess.Services;
 
@@ -62,6 +63,7 @@ public class ColaboradorService
         }
 
         GetColaboradorResult result = await GetColaboradorByIdBuk(idEmployeeBuk);
+        
         if (result.IsError || result.colaborador is null)
         {
             await RegistrarBitacoraAsync(BitacoraDTO.Error(idEmployeeBuk, eventType, $"No se pudo obtener el colaborador de Buk: {result.ErrorMessage}"));
@@ -379,16 +381,12 @@ public class ColaboradorService
 
     private async Task AsignarJefeAsync(ColaboradorDTO colaborador)
     {
-        if (!colaborador.BossId.HasValue || colaborador.BossId.Value <= 0)
+        if (string.IsNullOrEmpty(colaborador.RFC) )
         {
-            return;
+            return;            
         }
-
-        var resultBoss = await GetColaboradorByIdBuk(colaborador.BossId.Value, forceAPICALL: true);
-        if (!resultBoss.IsError && resultBoss.colaborador is not null)
-        {
-            colaborador.ReportaA = resultBoss.colaborador.IdColaborador;
-        }
+        string? personalBos=  await _colaboradorRepository.BuscarPersonalPorRFC(colaborador.RFC);        
+        colaborador.ReportaA = personalBos ?? String.Empty;     
     }
 
     private async Task RegistrarSiNoExisteAsync(ColaboradorDTO colaborador)

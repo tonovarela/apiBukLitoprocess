@@ -871,4 +871,6 @@ public class ColaboradorRepository : IColaboradorRepository
             throw;
         }
     }
+
+    
 }
