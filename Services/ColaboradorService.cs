@@ -59,7 +59,7 @@ public class ColaboradorService
             return GetColaboradorResult.Fail("Evento no soportado", 400);
         }
 
-        GetColaboradorResult result = await GetColaboradorByIdBuk(idEmployeeBuk);
+        GetColaboradorResult result = await GetColaboradorByIdBuk(idEmployeeBuk,true);
 
         if (result.IsError || result.colaborador is null)
         {
@@ -345,7 +345,7 @@ public class ColaboradorService
         });
     }
 
-    internal async Task<GetColaboradorResult> GetColaboradorByIdBuk(long idEmployeeBuk)
+    internal async Task<GetColaboradorResult> GetColaboradorByIdBuk(long idEmployeeBuk, bool forceAPICALL = false)
     {
         try
         {
@@ -376,7 +376,7 @@ public class ColaboradorService
 
     private async Task AsignarJefeAsync(ColaboradorDTO colaborador)
     {
-        if (string.IsNullOrEmpty(colaborador.RFC))
+        if (string.IsNullOrEmpty(colaborador.RFCBoss))
         {
             colaborador.ReportaA = String.Empty;
             return;
