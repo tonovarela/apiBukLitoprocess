@@ -81,10 +81,10 @@ public class ColaboradorRepository : IColaboradorRepository
     {
 
 
-        //string? reportaA = await BuscarPersonalPorRFC(colaborador.RFC);        
-        string? reportaA = colaborador.ReportaA;
-        string  departamento = await ObtenerDepartamento(colaborador.CentroCostos ?? "");
-        await ActualizarCampoExtra(colaborador.IdColaborador, "MailLitoprocess", colaborador.Correo_Corporativo ?? "");
+        // //string? reportaA = await BuscarPersonalPorRFC(colaborador.RFC);        
+         string? reportaA = colaborador.ReportaA;
+         string  departamento = await ObtenerDepartamento(colaborador.CentroCostos ?? "");
+         await ActualizarCampoExtra(colaborador.IdColaborador, "MailLitoprocess", colaborador.Correo_Corporativo ?? "");
         Console.WriteLine($"[DEBUG] Actualizar: personal={colaborador.IdColaborador},  banco={colaborador.Banco}, reportaA={reportaA}, departamento={departamento}");
         try
         {
@@ -146,13 +146,12 @@ public class ColaboradorRepository : IColaboradorRepository
                                 SueldoDiario=@SalarioDiario,
                                 Telefono=@Telefono,
                                 TipoContrato = @TipoContrato,
-                                TipoSueldo=@TipoSueldo,
-                                usuario=@Id,
+                                TipoSueldo=@TipoSueldo,                                
                                 ZonaEconomica=@ZonaEconomica,
                                 Categoria=@Categoria,
                                 FechaAntiguedad=@FechaAntiguedad,
                                 LugarNacimiento=@LugarNacimiento
-                                where personal=@personal";
+                                where usuario=@Id";
                 using var command = new SqlCommand(query, connection);
 
                 command.CommandTimeout = 300;
@@ -170,7 +169,7 @@ public class ColaboradorRepository : IColaboradorRepository
                 command.Parameters.AddWithValue("@ApellidoPaterno", colaborador.ApellidoPaterno);
                 command.Parameters.AddWithValue("@ApellidoMaterno", colaborador.ApellidoMaterno);
                 command.Parameters.AddWithValue("@Nombre", colaborador.Nombre);
-                command.Parameters.AddWithValue("@personal", colaborador.IdColaborador);
+                //command.Parameters.AddWithValue("@personal", colaborador.IdColaborador);
                 command.Parameters.AddWithValue("@Curp", colaborador.CURP);
                 command.Parameters.AddWithValue("@Rfc", colaborador.RFC);
                 command.Parameters.AddWithValue("@CorreoPersonal", colaborador.Correo_Personal);
@@ -872,5 +871,5 @@ public class ColaboradorRepository : IColaboradorRepository
         }
     }
 
-    
+   
 }

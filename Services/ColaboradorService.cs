@@ -63,7 +63,7 @@ public class ColaboradorService
         }
 
         GetColaboradorResult result = await GetColaboradorByIdBuk(idEmployeeBuk);
-        
+
         if (result.IsError || result.colaborador is null)
         {
             await RegistrarBitacoraAsync(BitacoraDTO.Error(idEmployeeBuk, eventType, $"No se pudo obtener el colaborador de Buk: {result.ErrorMessage}"));
@@ -76,12 +76,23 @@ public class ColaboradorService
             switch (eventType)
             {
                 case "employee_update" or "job_movement":
-                    await _colaboradorRepository.Actualizar(colaborador);
+                    var colaboradorDB = await _colaboradorRepository.ExisteColaborador(idEmployeeBuk.ToString());
+                    if (colaboradorDB)
+                    {
+                        Console.WriteLine($"Actualizando colaborador existente con ID Buk: {idEmployeeBuk}");
+                        await _colaboradorRepository.Actualizar(colaborador);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Colaborador con ID Buk: {idEmployeeBuk} no existe en la base de datos. Procediendo a registrar como nuevo colaborador.");
+                        await ProcesarJobHireAsync(idEmployeeBuk, colaborador);
+                    }
+
                     break;
 
-                case "job_hire":                    
-                    await ProcesarJobHireAsync(idEmployeeBuk, colaborador);
-                    break;
+                // case "job_hire":                    
+                //     await ProcesarJobHireAsync(idEmployeeBuk, colaborador);
+                //     break;
 
                 case "job_termination":
 
@@ -137,15 +148,15 @@ public class ColaboradorService
     }
 
 
-   
 
-   
+
+
 
     internal static DateOnly UltimoTresLunesAnteriores(DateTimeOffset referencia)
     {
         int diasDesdeLunes = ((int)referencia.DayOfWeek + 6) % 7;
-        DateOnly lunesSemanaActual = DateOnly.FromDateTime(referencia.Date.AddDays(-diasDesdeLunes));            
-        DateOnly lunes = lunesSemanaActual.AddDays(-21);  
+        DateOnly lunesSemanaActual = DateOnly.FromDateTime(referencia.Date.AddDays(-diasDesdeLunes));
+        DateOnly lunes = lunesSemanaActual.AddDays(-21);
         return lunes;
     }
 
@@ -231,7 +242,7 @@ public class ColaboradorService
 
         try
         {
-        
+
             await _colaboradorRepository.BorrarAusenciasDesde(fechaConsulta);
             await _colaboradorRepository.RegistrarAusencias(permisosAprobados, "Permiso");
             await _colaboradorRepository.BorrarAusenciasPendientes();
@@ -270,7 +281,7 @@ public class ColaboradorService
                              .ToList();
 
         await AsignarIDSIntelisis(ausencias);
-        
+
 
         await _colaboradorRepository.RegistrarAusencias(ausencias, "Ausencia");
         return ausencias;
@@ -328,9 +339,7 @@ public class ColaboradorService
 
     private async Task ProcesarJobHireAsync(long idEmployeeBuk, ColaboradorDTO colaborador)
     {
-        var colaboradorDB = await _colaboradorRepository.ExisteColaborador(idEmployeeBuk.ToString());
-        if (colaboradorDB)
-            throw new InvalidOperationException("Colaborador ya existe en la base de datos");
+
 
         await RegistrarSiNoExisteAsync(colaborador);
 
@@ -381,12 +390,12 @@ public class ColaboradorService
 
     private async Task AsignarJefeAsync(ColaboradorDTO colaborador)
     {
-        if (string.IsNullOrEmpty(colaborador.RFC) )
+        if (string.IsNullOrEmpty(colaborador.RFC))
         {
-            return;            
+            return;
         }
-        string? personalBos=  await _colaboradorRepository.BuscarPersonalPorRFC(colaborador.RFC);        
-        colaborador.ReportaA = personalBos ?? String.Empty;     
+        string? personalBos = await _colaboradorRepository.BuscarPersonalPorRFC(colaborador.RFC);
+        colaborador.ReportaA = personalBos ?? String.Empty;
     }
 
     private async Task RegistrarSiNoExisteAsync(ColaboradorDTO colaborador)
@@ -408,7 +417,7 @@ public class ColaboradorService
             EventLogger.Error("Error al registrar bitácora", ex, new { bitacora, error = ex.GetBaseException().Message });
         }
     }
-    
+
     #endregion
 
 }
