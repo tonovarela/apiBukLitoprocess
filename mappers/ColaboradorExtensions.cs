@@ -110,7 +110,8 @@ public static class ColaboradorExtensions
 
             
             LugarNacimiento = colaborador.custom_attributes?.lugarNacimiento ?? String.Empty,
-            FechaAntiguedad=colaborador.active_since
+            FechaAntiguedad=colaborador.active_since,
+            esBecario = colaborador.current_job?.role?.name?.ToLower().Contains("becario") ?? false,
         
             
 

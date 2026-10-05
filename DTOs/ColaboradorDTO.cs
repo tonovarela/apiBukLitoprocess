@@ -88,6 +88,8 @@ public class ColaboradorDTO
 
     public string? FechaAntiguedad { get; set; }
 
+    public bool esBecario { get; set; } = false;
+
 
     
 

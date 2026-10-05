@@ -23,7 +23,10 @@ public Task Insertar(ColaboradorDTO colaborador,int nuevoIdColaborador);
 
 public Task InsertarBitacora(BitacoraDTO bitacora);
 
-public Task<int> ObtenerSiguienteClavePersonal();
+public Task<int> ObtenerSiguienteClavePersonal(bool esBecario);
+
+
+
 
 public Task RegistrarBaja(string idPersonalBuk, string conceptoBaja,string fechaBaja);
 

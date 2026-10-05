@@ -392,18 +392,22 @@ public class ColaboradorService
     {
         if (string.IsNullOrEmpty(colaborador.RFC))
         {
+            colaborador.ReportaA = String.Empty;
             return;
         }
-        string? personalBos = await _colaboradorRepository.BuscarPersonalPorRFC(colaborador.RFC);
+        string? personalBos = await _colaboradorRepository.BuscarPersonalPorRFC(colaborador.RFCBoss!);
         colaborador.ReportaA = personalBos ?? String.Empty;
     }
 
     private async Task RegistrarSiNoExisteAsync(ColaboradorDTO colaborador)
     {
 
-        var nuevoCodigoPersonal = await _colaboradorRepository.ObtenerSiguienteClavePersonal();
+        int nuevoCodigoPersonal;        
+        nuevoCodigoPersonal = await _colaboradorRepository.ObtenerSiguienteClavePersonal(colaborador.esBecario);
         colaborador.IdColaborador = nuevoCodigoPersonal.ToString();
         await _colaboradorRepository.Insertar(colaborador, nuevoCodigoPersonal);
+
+
     }
 
     private async Task RegistrarBitacoraAsync(BitacoraDTO bitacora)

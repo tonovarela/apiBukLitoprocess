@@ -289,14 +289,29 @@ public class ColaboradorRepository : IColaboradorRepository
     }
 
 
-    public async Task<int> ObtenerSiguienteClavePersonal()
+    public async Task<int> ObtenerSiguienteClavePersonal(bool esBecario)
     {
 
-        string sql = @"SELECT
+      string sql;
+
+     if (esBecario)
+        {
+            sql=@"SELECT
+                   MAX(cast(Personal as int)) + 1 siguiente
+                   FROM dbo.Personal
+                   WHERE Tipo='Becario'
+                   AND cast(Personal as int) > 9000";
+        }
+        else
+        {
+         sql = @"SELECT
                    MAX(cast(Personal as int)) + 1 siguiente
                    FROM dbo.Personal
                    WHERE Tipo<>'Becario'
-                   AND cast(Personal as int) < 9000";
+                   AND cast(Personal as int) < 9000";   
+
+        }
+                   
         using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
         using var command = new SqlCommand(sql, connection);
         var result = await command.ExecuteScalarAsync();
@@ -870,6 +885,5 @@ public class ColaboradorRepository : IColaboradorRepository
             throw;
         }
     }
-
-   
 }
+
