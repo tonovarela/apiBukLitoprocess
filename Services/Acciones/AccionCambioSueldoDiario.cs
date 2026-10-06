@@ -10,12 +10,10 @@ public class AccionCambioSueldoDiario : IAccionCambioColaborador
     public CampoColaborador Campo => CampoColaborador.SueldoDiario;
 
     private readonly IHistorialRepository _historialRepository;
-
     public AccionCambioSueldoDiario(IHistorialRepository historialRepository)
     {
         _historialRepository = historialRepository;
     }
-
     public async Task EjecutarAsync(ColaboradorDTO colaborador, CambioColaborador cambio)
     {
         EventLogger.Info("cambio_colaborador", new { colaborador.IdColaborador, cambio.Campo, cambio.Anterior, cambio.Nuevo });        
