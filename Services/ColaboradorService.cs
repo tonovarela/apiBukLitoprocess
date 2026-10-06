@@ -44,8 +44,7 @@ public class ColaboradorService
     public async Task<GetColaboradorResult> handleEventWebhook(WebhookPayloadBody bodyPayload)
     {
         string eventType = bodyPayload.EventType;
-        int idEmployeeBuk = bodyPayload.EmployeeId;
-
+        int idEmployeeBuk = bodyPayload.EmployeeId;         
         EventLogger.Info("webhook_event", bodyPayload);
 
         if (string.IsNullOrWhiteSpace(eventType))
