@@ -9,7 +9,7 @@ using apiBukLitoprocess.Models;
 using apiBukLitoprocess.Services.AccionesCambio;
 using apiBukLitoprocess.repository.interfaces;
 using apiBukLitoprocess.responseApi;
-using Microsoft.Extensions.Primitives;
+
 
 namespace apiBukLitoprocess.Services;
 
@@ -78,7 +78,7 @@ public class ColaboradorService
         }
         ColaboradorDTO colaborador = result.colaborador;
         await AsignarJefeAsync(colaborador);
-        string? detalle = null;
+        string? detalle = null;        
         try
         {
             switch (eventType)
@@ -88,9 +88,14 @@ public class ColaboradorService
                     if (colaboradorDB is not null)
                     {
                         Console.WriteLine($"Actualizando colaborador existente con ID Buk: {idEmployeeBuk}");
+                         colaborador.SalarioDiario=0;
+                         
+                         
+                         
+                                                 
                         var cambios = ColaboradorComparador.Comparar(colaboradorDB, colaborador);
                         //await _colaboradorRepository.Actualizar(colaborador);
-                        //await EjecutarAccionesCambioAsync(idEmployeeBuk, eventType, colaborador, cambios);
+                        await EjecutarAccionesCambioAsync(idEmployeeBuk, eventType, colaborador, cambios);
                         detalle = cambios.Count > 0 ? $"Cambios: {string.Join("; ", cambios)}" : null;
                         Console.WriteLine($"Cambios detectados: {detalle ?? "Ninguno"}");
                     }
