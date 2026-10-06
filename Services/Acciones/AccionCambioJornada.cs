@@ -2,11 +2,11 @@ using apiBukLitoprocess.Clases;
 using apiBukLitoprocess.DTOs;
 using apiBukLitoprocess.Models;
 
-namespace apiBukLitoprocess.Services.AccionesCambio;
+namespace apiBukLitoprocess.Services.Acciones;
 
-public class AccionCambioPuesto : IAccionCambioColaborador
+public class AccionCambioJornada : IAccionCambioColaborador
 {
-    public CampoColaborador Campo => CampoColaborador.Puesto;
+    public CampoColaborador Campo => CampoColaborador.Jornada;
 
     public Task EjecutarAsync(ColaboradorDTO colaborador, CambioColaborador cambio)
     {

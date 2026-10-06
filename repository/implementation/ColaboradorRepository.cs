@@ -544,8 +544,8 @@ public class ColaboradorRepository : IColaboradorRepository
                 Jornada
             FROM dbo.Personal";
 
-    public Task<Colaborador?> Obtener(string personal)
-        => ObtenerPor("Personal = @valor", SqlDbType.Char, personal);
+    // public Task<Colaborador?> Obtener(string personal)
+    //     => ObtenerPor("Personal = @valor", SqlDbType.Char, personal);
 
     public Task<Colaborador?> ObtenerPorUsuario(string idBuk)
         => ObtenerPor("Usuario = @valor", SqlDbType.VarChar, idBuk);

@@ -5,7 +5,7 @@ using apiBukLitoprocess.helpers;
 using apiBukLitoprocess.Models;
 using apiBukLitoprocess.repository.interfaces;
 using apiBukLitoprocess.Services;
-using apiBukLitoprocess.Services.AccionesCambio;
+using apiBukLitoprocess.Services.Acciones;
 using Moq;
 using Xunit;
 

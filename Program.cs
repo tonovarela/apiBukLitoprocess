@@ -4,7 +4,7 @@ using apiBukLitoprocess.Data;
 using apiBukLitoprocess.repository.implementation;
 using apiBukLitoprocess.repository.interfaces;
 using apiBukLitoprocess.Services;
-using apiBukLitoprocess.Services.AccionesCambio;
+using apiBukLitoprocess.Services.Acciones;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using Serilog.Filters;

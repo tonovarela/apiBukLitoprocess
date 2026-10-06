@@ -2,7 +2,7 @@ using apiBukLitoprocess.Clases;
 using apiBukLitoprocess.DTOs;
 using apiBukLitoprocess.Models;
 
-namespace apiBukLitoprocess.Services.AccionesCambio;
+namespace apiBukLitoprocess.Services.Acciones;
 
 public class AccionCambioReportaA : IAccionCambioColaborador
 {

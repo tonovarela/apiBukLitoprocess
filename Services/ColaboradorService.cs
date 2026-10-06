@@ -6,7 +6,7 @@ using apiBukLitoprocess.DTOs;
 using apiBukLitoprocess.helpers;
 using apiBukLitoprocess.mappers;
 using apiBukLitoprocess.Models;
-using apiBukLitoprocess.Services.AccionesCambio;
+using apiBukLitoprocess.Services.Acciones;
 using apiBukLitoprocess.repository.interfaces;
 using apiBukLitoprocess.responseApi;
 
@@ -88,14 +88,10 @@ public class ColaboradorService
                     if (colaboradorDB is not null)
                     {
                         Console.WriteLine($"Actualizando colaborador existente con ID Buk: {idEmployeeBuk}");
-                         colaborador.SalarioDiario=0;
-                         
-                         
-                         
-                                                 
+                        colaborador.SalarioDiario=0;                           
                         var cambios = ColaboradorComparador.Comparar(colaboradorDB, colaborador);
                         //await _colaboradorRepository.Actualizar(colaborador);
-                        await EjecutarAccionesCambioAsync(idEmployeeBuk, eventType, colaborador, cambios);
+                        await EjecutarAccionesAsync(idEmployeeBuk, eventType, colaborador, cambios);
                         detalle = cambios.Count > 0 ? $"Cambios: {string.Join("; ", cambios)}" : null;
                         Console.WriteLine($"Cambios detectados: {detalle ?? "Ninguno"}");
                     }
@@ -422,7 +418,7 @@ public class ColaboradorService
     }
 
     // Se ejecuta después del UPDATE: una acción que falla se registra en bitácora sin revertir la actualización.
-    private async Task EjecutarAccionesCambioAsync(long idEmployeeBuk, string eventType, ColaboradorDTO colaborador, IReadOnlyList<CambioColaborador> cambios)
+    private async Task EjecutarAccionesAsync(long idEmployeeBuk, string eventType, ColaboradorDTO colaborador, IReadOnlyList<CambioColaborador> cambios)
     {
         foreach (var cambio in cambios)
         {

@@ -1,7 +1,7 @@
 using apiBukLitoprocess.DTOs;
 using apiBukLitoprocess.Models;
 
-namespace apiBukLitoprocess.Services.AccionesCambio;
+namespace apiBukLitoprocess.Services.Acciones;
 
 /// <summary>
 /// Acción que se ejecuta cuando cambia un campo del colaborador al procesar
