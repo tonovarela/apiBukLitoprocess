@@ -6,7 +6,6 @@ Este proyecto es una API en ASP.NET Core (.NET 8) que integra los colaboradores 
 - Recibe eventos de Buk (`employee_update`, `job_hire`, `job_termination`, `job_movement`) mediante un endpoint webhook.
 - Deserializa el colaborador de Buk y lo mapea a `ColaboradorDTO` para persistirlo.
 - Sincronización masiva de colaboradores y consulta de ausencias/permisos/incapacidades/vacaciones.
-- **Modo emulación de Buk** para desarrollo local sin consumir la API real.
 
 ## Uso
 
@@ -38,25 +37,6 @@ La configuración vive en `appsettings.json` / `appsettings.Development.json`:
 - `AsistenciaApiSettings` — API de control de asistencia.
 - `ConnectionStrings:DefaultConnection` — base de datos SQL Server.
 
-## Modo emulación de Buk
-
-Permite que `ColaboradorService.GetColaboradorByIdBuk` devuelva un colaborador de ejemplo (JSON embebido) **sin llamar al webservice real de Buk**, útil para desarrollo y pruebas locales.
-
-- Se activa con la clave `BukApiSettings:Emular`:
-  ```json
-  "BukApiSettings": {
-    "Url_API": "https://litoprocess.buk.mx/api/v1/mexico",
-    "Token": "...",
-    "Environment": "Development",
-    "Emular": true
-  }
-  ```
-- `true` → devuelve la respuesta emulada (ver `Services/BukEmulador.cs`, JSON en `Services/colaborador_emulado.json`).
-- `false` o ausente → consume la API real de Buk (comportamiento por defecto en producción).
-- Al estar activo se registra en consola: `[EMULACIÓN Buk] Devolviendo colaborador emulado...`.
-
-> Nota: el emulador devuelve siempre el mismo colaborador sin importar el `id`, por lo que la asignación de jefe también usará ese mismo registro.
-
 ## Pruebas
 
 El proyecto de pruebas (xUnit + Moq) está en `tests/apiBukLitoprocess.Tests` y valida `GetColaboradorByIdBuk` mockeando el webservice de Buk a nivel HTTP (`FakeBukHttpMessageHandler`), sin salir a la red.
@@ -67,7 +47,7 @@ dotnet test
 
 ## Estructura del proyecto
 - `controllers/` — endpoints de la API.
-- `Services/` — lógica de negocio (`ColaboradorService`, `AsistenciaService`, `RestClientService`, `BukEmulador`).
+- `Services/` — lógica de negocio (`ColaboradorService`, `AsistenciaService`, `RestClientService`).
 - `DTOs/` — objetos de transferencia.
 - `mappers/` — mapeo de respuestas de Buk a DTOs.
 - `responseApi/` — modelos de las respuestas de Buk.

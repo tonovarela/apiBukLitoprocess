@@ -24,12 +24,6 @@
     <None Remove="tests/**/*" />
   </ItemGroup>
 
-  <!-- JSON de emulación de Buk embebido como recurso (lo lee BukEmulador). -->
-  <ItemGroup>
-    <None Remove="Services/colaborador_emulado.json" />
-    <EmbeddedResource Include="Services/colaborador_emulado.json" />
-  </ItemGroup>
-
   <!-- Permite que el proyecto de pruebas acceda a miembros internal (GetColaboradorByIdBuk). -->
   <ItemGroup>
     <InternalsVisibleTo Include="apiBukLitoprocess.Tests" />
