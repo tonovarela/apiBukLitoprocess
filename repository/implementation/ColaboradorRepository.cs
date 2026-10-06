@@ -76,12 +76,9 @@ public class ColaboradorRepository : IColaboradorRepository
         Console.WriteLine($"[DEBUG] CtoCampoExtra: personal={personal}, campo={campo}, valor={valor}");
     }
 
-
     public async Task Actualizar(ColaboradorDTO colaborador)
     {
-
-
-        // //string? reportaA = await BuscarPersonalPorRFC(colaborador.RFC);        
+        
          string? reportaA = colaborador.ReportaA;
          string  departamento = await ObtenerDepartamento(colaborador.CentroCostos ?? "");
          await ActualizarCampoExtra(colaborador.IdColaborador, "MailLitoprocess", colaborador.Correo_Corporativo ?? "");
@@ -242,7 +239,6 @@ public class ColaboradorRepository : IColaboradorRepository
         await command.ExecuteNonQueryAsync();
     }
 
-
     public async Task<string?> BuscarPersonalPorRFC(string rfc)
     {
         using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
@@ -256,7 +252,6 @@ public class ColaboradorRepository : IColaboradorRepository
         }
         return null;
     }
-
 
     public async Task<string> ObtenerDepartamento(string centro_costos)
     {
@@ -287,7 +282,6 @@ public class ColaboradorRepository : IColaboradorRepository
         command.Parameters.AddWithValue("@Detalle", bitacoraDTO.Detalle ?? (object)DBNull.Value);
         await command.ExecuteNonQueryAsync();
     }
-
 
     public async Task<int> ObtenerSiguienteClavePersonal(bool esBecario)
     {
@@ -342,8 +336,6 @@ public class ColaboradorRepository : IColaboradorRepository
             throw;
         }
     }
-
-
 
     public async Task Insertar(ColaboradorDTO colaborador, int nuevoIdColaborador)
     {
@@ -569,8 +561,6 @@ public class ColaboradorRepository : IColaboradorRepository
         }
 
     }
-
-
 
     public async Task RegistrarSolicitudesVacaciones(List<SolicitudDTO> solicitudes)
     {
