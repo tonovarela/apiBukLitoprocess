@@ -89,9 +89,7 @@ public class ColaboradorService
                         Console.WriteLine($"Colaborador con ID Buk: {idEmployeeBuk} no existe en la base de datos. Procediendo a registrar como nuevo colaborador.");
                         await ProcesarJobHireAsync(idEmployeeBuk, colaborador);
                     }
-
-                    break;
-               
+                    break;               
                 case "job_termination":
 
                     await _colaboradorRepository.RegistrarBaja(idEmployeeBuk.ToString(), colaborador.ConceptoBaja!, colaborador.FechaBaja!);
