@@ -38,8 +38,9 @@ public class ColaboradorServiceBukTests
 
         var restClient = new RestClientService(factory.Object);
         var repositorio = new Mock<IColaboradorRepository>();
+        var ausencias = new Mock<IAusenciaRepository>();
 
-        return new ColaboradorService(restClient, repositorio.Object);
+        return new ColaboradorService(restClient, repositorio.Object, ausencias.Object);
     }
 
     private const string JsonColaboradorValido = """

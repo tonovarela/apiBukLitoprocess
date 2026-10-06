@@ -20,6 +20,7 @@ public class ColaboradorService
 {
     private readonly RestClientService _restClient;
     private readonly IColaboradorRepository _colaboradorRepository;
+    private readonly IAusenciaRepository _ausenciaRepository;
     private readonly IConfiguration? _configuration;
 
     /// <summary>
@@ -35,10 +36,11 @@ public class ColaboradorService
         "job_termination",
         "job_movement"
         };
-    public ColaboradorService(RestClientService restClient, IColaboradorRepository colaboradorRepository, IConfiguration? configuration = null)
+    public ColaboradorService(RestClientService restClient, IColaboradorRepository colaboradorRepository, IAusenciaRepository ausenciaRepository, IConfiguration? configuration = null)
     {
         _restClient = restClient;
         _colaboradorRepository = colaboradorRepository;
+        _ausenciaRepository = ausenciaRepository;
         _configuration = configuration;
     }
 
@@ -89,15 +91,11 @@ public class ColaboradorService
                     }
 
                     break;
-
-                // case "job_hire":                    
-                //     await ProcesarJobHireAsync(idEmployeeBuk, colaborador);
-                //     break;
-
+               
                 case "job_termination":
 
                     await _colaboradorRepository.RegistrarBaja(idEmployeeBuk.ToString(), colaborador.ConceptoBaja!, colaborador.FechaBaja!);
-                    break;
+                    break;                
             }
             await RegistrarBitacoraAsync(BitacoraDTO.Exito(idEmployeeBuk, eventType));
             return GetColaboradorResult.Ok(colaborador);
@@ -183,8 +181,8 @@ public class ColaboradorService
                                 .ToList();
 
         await AsignarIDSIntelisis(solicitudes);
-        await _colaboradorRepository.BorrarVacacionesDesde(fechaInicial);
-        await _colaboradorRepository.RegistrarSolicitudesVacaciones(solicitudes);
+        await _ausenciaRepository.BorrarVacacionesDesde(fechaInicial);
+        await _ausenciaRepository.RegistrarSolicitudesVacaciones(solicitudes);
         return solicitudes;
     }
 
@@ -210,7 +208,7 @@ public class ColaboradorService
                              .ToList();
 
         await AsignarIDSIntelisis(incapacidades);
-        await _colaboradorRepository.RegistrarAusencias(incapacidades, "Incapacidad");
+        await _ausenciaRepository.RegistrarAusencias(incapacidades, "Incapacidad");
         return incapacidades;
 
     }
@@ -243,10 +241,10 @@ public class ColaboradorService
         try
         {
 
-            await _colaboradorRepository.BorrarAusenciasDesde(fechaConsulta);
-            await _colaboradorRepository.RegistrarAusencias(permisosAprobados, "Permiso");
-            await _colaboradorRepository.BorrarAusenciasPendientes();
-            await _colaboradorRepository.RegistrarPermisosPendientes(permisosPendientes, "Permiso");
+            await _ausenciaRepository.BorrarAusenciasDesde(fechaConsulta);
+            await _ausenciaRepository.RegistrarAusencias(permisosAprobados, "Permiso");
+            await _ausenciaRepository.BorrarAusenciasPendientes();
+            await _ausenciaRepository.RegistrarPermisosPendientes(permisosPendientes, "Permiso");
         }
         catch (Exception ex)
         {
@@ -283,7 +281,7 @@ public class ColaboradorService
         await AsignarIDSIntelisis(ausencias);
 
 
-        await _colaboradorRepository.RegistrarAusencias(ausencias, "Ausencia");
+        await _ausenciaRepository.RegistrarAusencias(ausencias, "Ausencia");
         return ausencias;
     }
 

@@ -36,6 +36,7 @@ builder.Services.AddScoped<AsistenciaService>();
 
 builder.Services.AddScoped<IColaboradorRepository, ColaboradorRepository>();
 builder.Services.AddScoped<IAsistenciaRepository, AsistenciaRepository>();
+builder.Services.AddScoped<IAusenciaRepository, AusenciaRepository>();
 
 builder.Services.AddHttpClient(ApiClientNames.Buk, (sp, client) =>
 {
