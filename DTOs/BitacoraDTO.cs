@@ -11,7 +11,7 @@ public record BitacoraDTO
     
 
     public static BitacoraDTO Exito(long id, string evento, string? detalle = null)
-        => new() { IdEmpleado = id, Evento = evento, Estado = BitacoraEstado.Exito, Detalle = detalle };
+        => new() { IdEmpleado = id, Evento = evento, Estado = BitacoraEstado.Exito, Detalle = Truncar(detalle) };
 
     public static BitacoraDTO Error(long id, string evento, string detalle)
         => new() { IdEmpleado = id, Evento = evento, Estado = BitacoraEstado.Error, Detalle = Truncar(detalle) };

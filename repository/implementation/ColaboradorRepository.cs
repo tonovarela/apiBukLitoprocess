@@ -1,7 +1,9 @@
 using apiBukLitoprocess.Data;
 using apiBukLitoprocess.DTOs;
 using apiBukLitoprocess.helpers;
+using apiBukLitoprocess.Models;
 using apiBukLitoprocess.repository.interfaces;
+using System.Data;
 using Microsoft.Data.SqlClient;
 
 
@@ -21,7 +23,7 @@ public class ColaboradorRepository : IColaboradorRepository
         _sqlLogger = loggerFactory.CreateLogger("SqlQueries");
     }
 
-    public async Task ActualizarCampoExtra(string personal, string campo, string valor)
+    private async Task ActualizarCampoExtra(string personal, string campo, string valor)
     {
         using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
         var query = "Update CtoCampoExtra set Valor= @valor Where Tipo='Personal' and CampoExtra=@campo and clave = @personal";
@@ -34,12 +36,30 @@ public class ColaboradorRepository : IColaboradorRepository
         Console.WriteLine($"[DEBUG] CtoCampoExtra: personal={personal}, campo={campo}, valor={valor}");
     }
 
+    private async Task<string> ObtenerDepartamento(string centro_costos)
+    {
+        using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
+        var query = @"
+                    select
+                    Descripcion as Departamento from centrocostos
+                    where estatus = 'alta'
+                    and centrocostos=@centro_costos";
+        using var command = new SqlCommand(query, connection);
+        command.Parameters.AddWithValue("@centro_costos", centro_costos);
+        using var reader = await command.ExecuteReaderAsync();
+        if (await reader.ReadAsync())
+        {
+            return reader["Departamento"].ToString() ?? String.Empty;
+        }
+        return String.Empty;
+    }
+
     public async Task Actualizar(ColaboradorDTO colaborador)
     {
-        
-         string? reportaA = colaborador.ReportaA;
-         string  departamento = await ObtenerDepartamento(colaborador.CentroCostos ?? "");
-         await ActualizarCampoExtra(colaborador.IdColaborador, "MailLitoprocess", colaborador.Correo_Corporativo ?? "");
+
+        string? reportaA = colaborador.ReportaA;
+        string departamento = await ObtenerDepartamento(colaborador.CentroCostos ?? "");
+        await ActualizarCampoExtra(colaborador.IdColaborador, "MailLitoprocess", colaborador.Correo_Corporativo ?? "");
         Console.WriteLine($"[DEBUG] Actualizar: personal={colaborador.IdColaborador},  banco={colaborador.Banco}, reportaA={reportaA}, departamento={departamento}");
         try
         {
@@ -145,7 +165,7 @@ public class ColaboradorRepository : IColaboradorRepository
                 command.Parameters.AddWithValue("@BeneficiarioNacimiento1", colaborador.FechaNacimientoBeneficiario1 ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@ParentescoBeneficiario1", colaborador.ParentescoBeneficiario1 ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@PorcentajeBeneficiario1", colaborador.PorcentajeBeneficiario1 ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@PersonalSucursal", colaborador.Banco ?? (object)DBNull.Value);    
+                command.Parameters.AddWithValue("@PersonalSucursal", colaborador.Banco ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@PersonalCuenta", colaborador.PersonalCuenta ?? (object)DBNull.Value);
 
                 command.Parameters.AddWithValue("@Beneficiario2", colaborador.Beneficiario2 ?? (object)DBNull.Value);
@@ -170,7 +190,7 @@ public class ColaboradorRepository : IColaboradorRepository
                 command.Parameters.AddWithValue("@TipoContrato", colaborador.TipoContrato ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Sindicato", colaborador.Sindicato ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Categoria", colaborador.Categoria ?? (object)DBNull.Value);
-                
+
                 command.Parameters.AddWithValue("@FechaAntiguedad", colaborador.FechaAntiguedad ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@LugarNacimiento", colaborador.LugarNacimiento ?? (object)DBNull.Value);
 
@@ -211,23 +231,7 @@ public class ColaboradorRepository : IColaboradorRepository
         return null;
     }
 
-    public async Task<string> ObtenerDepartamento(string centro_costos)
-    {
-        using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
-        var query = @"
-                    select
-                    Descripcion as Departamento from centrocostos
-                    where estatus = 'alta'
-                    and centrocostos=@centro_costos";
-        using var command = new SqlCommand(query, connection);
-        command.Parameters.AddWithValue("@centro_costos", centro_costos);
-        using var reader = await command.ExecuteReaderAsync();
-        if (await reader.ReadAsync())
-        {
-            return reader["Departamento"].ToString() ?? String.Empty;
-        }
-        return String.Empty;
-    }
+
 
     public async Task InsertarBitacora(BitacoraDTO bitacoraDTO)
     {
@@ -244,11 +248,11 @@ public class ColaboradorRepository : IColaboradorRepository
     public async Task<int> ObtenerSiguienteClavePersonal(bool esBecario)
     {
 
-      string sql;
+        string sql;
 
-     if (esBecario)
+        if (esBecario)
         {
-            sql=@"SELECT
+            sql = @"SELECT
                    MAX(cast(Personal as int)) + 1 siguiente
                    FROM dbo.Personal
                    WHERE Tipo='Becario'
@@ -256,14 +260,14 @@ public class ColaboradorRepository : IColaboradorRepository
         }
         else
         {
-         sql = @"SELECT
+            sql = @"SELECT
                    MAX(cast(Personal as int)) + 1 siguiente
                    FROM dbo.Personal
                    WHERE Tipo<>'Becario'
-                   AND cast(Personal as int) < 9000";   
+                   AND cast(Personal as int) < 9000";
 
         }
-                   
+
         using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
         using var command = new SqlCommand(sql, connection);
         var result = await command.ExecuteScalarAsync();
@@ -297,8 +301,7 @@ public class ColaboradorRepository : IColaboradorRepository
 
     public async Task Insertar(ColaboradorDTO colaborador, int nuevoIdColaborador)
     {
-        string? reportaA = colaborador.ReportaA;
-        //await BuscarPersonalPorRFC(colaborador.RFC);
+        string? reportaA = colaborador.ReportaA;        
         string departamento = await ObtenerDepartamento(colaborador.CentroCostos ?? "");
 
         try
@@ -498,7 +501,7 @@ public class ColaboradorRepository : IColaboradorRepository
             command.Parameters.AddWithValue("@Departamento", departamento ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@DireccionNumero", colaborador.NumExt ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@DireccionNumeroInt", colaborador.NumInt ?? (object)DBNull.Value);
-            command.Parameters.AddWithValue("@NumeroHijos", colaborador.NumeroHijos ?? (object)DBNull.Value);            
+            command.Parameters.AddWithValue("@NumeroHijos", colaborador.NumeroHijos ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@PeriodoTipo", colaborador.PeriodoTipo ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@Categoria", colaborador.Categoria ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@PersonalSucursal", colaborador.Banco ?? (object)DBNull.Value);
@@ -530,5 +533,46 @@ public class ColaboradorRepository : IColaboradorRepository
         return Convert.ToInt32(result) > 0;
     }
 
+    private const string SelectColaborador = @"
+            SELECT TOP (1)
+                Personal,
+                SueldoDiario,
+                ReportaA,
+                Puesto,
+                Departamento,
+                CentroCostos,
+                Jornada
+            FROM dbo.Personal";
+
+    public Task<Colaborador?> Obtener(string personal)
+        => ObtenerPor("Personal = @valor", SqlDbType.Char, personal);
+
+    public Task<Colaborador?> ObtenerPorUsuario(string idBuk)
+        => ObtenerPor("Usuario = @valor", SqlDbType.VarChar, idBuk);
+
+    private async Task<Colaborador?> ObtenerPor(string filtro, SqlDbType tipo, string valor)
+    {
+        await using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
+        await using var command = new SqlCommand($"{SelectColaborador} WHERE {filtro}", connection);
+        command.Parameters.Add("@valor", tipo, 10).Value = valor;
+        await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow);
+        if (!await reader.ReadAsync())
+        {
+            return null;
+        }
+
+        string Texto(int ordinal) => reader.IsDBNull(ordinal) ? string.Empty : reader.GetString(ordinal).TrimEnd();
+
+        return new Colaborador
+        {
+            Personal = Texto(0),
+            SueldoDiario = reader.IsDBNull(1) ? null : reader.GetDecimal(1),
+            ReportaA = Texto(2),
+            Puesto = Texto(3),
+            Departamento = Texto(4),
+            CentroCostos = Texto(5),
+            Jornada = Texto(6)
+        };
+    }
 }
 

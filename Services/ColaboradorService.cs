@@ -3,7 +3,10 @@ using System.Text.Json;
 using apiBukLitoprocess.Clases;
 using apiBukLitoprocess.conf;
 using apiBukLitoprocess.DTOs;
+using apiBukLitoprocess.helpers;
 using apiBukLitoprocess.mappers;
+using apiBukLitoprocess.Models;
+using apiBukLitoprocess.Services.AccionesCambio;
 using apiBukLitoprocess.repository.interfaces;
 using apiBukLitoprocess.responseApi;
 using Microsoft.Extensions.Primitives;
@@ -22,6 +25,7 @@ public class ColaboradorService
     private readonly IColaboradorRepository _colaboradorRepository;
     private readonly IAusenciaRepository _ausenciaRepository;
     private readonly IConfiguration? _configuration;
+    private readonly IEnumerable<IAccionCambioColaborador> _accionesCambio;
 
     /// <summary>
     /// Cuando es true, GetColaboradorByIdBuk devuelve la respuesta emulada
@@ -36,12 +40,13 @@ public class ColaboradorService
         "job_termination",
         "job_movement"
         };
-    public ColaboradorService(RestClientService restClient, IColaboradorRepository colaboradorRepository, IAusenciaRepository ausenciaRepository, IConfiguration? configuration = null)
+    public ColaboradorService(RestClientService restClient, IColaboradorRepository colaboradorRepository, IAusenciaRepository ausenciaRepository, IConfiguration? configuration = null, IEnumerable<IAccionCambioColaborador>? accionesCambio = null)
     {
         _restClient = restClient;
         _colaboradorRepository = colaboradorRepository;
         _ausenciaRepository = ausenciaRepository;
         _configuration = configuration;
+        _accionesCambio = accionesCambio ?? [];
     }
 
 
@@ -73,16 +78,21 @@ public class ColaboradorService
         }
         ColaboradorDTO colaborador = result.colaborador;
         await AsignarJefeAsync(colaborador);
+        string? detalle = null;
         try
         {
             switch (eventType)
             {
                 case "employee_update" or "job_movement":
-                    var colaboradorDB = await _colaboradorRepository.ExisteColaborador(idEmployeeBuk.ToString());
-                    if (colaboradorDB)
+                    var colaboradorDB = await _colaboradorRepository.ObtenerPorUsuario(idEmployeeBuk.ToString());
+                    if (colaboradorDB is not null)
                     {
                         Console.WriteLine($"Actualizando colaborador existente con ID Buk: {idEmployeeBuk}");
-                        await _colaboradorRepository.Actualizar(colaborador);
+                        var cambios = ColaboradorComparador.Comparar(colaboradorDB, colaborador);
+                        //await _colaboradorRepository.Actualizar(colaborador);
+                        //await EjecutarAccionesCambioAsync(idEmployeeBuk, eventType, colaborador, cambios);
+                        detalle = cambios.Count > 0 ? $"Cambios: {string.Join("; ", cambios)}" : null;
+                        Console.WriteLine($"Cambios detectados: {detalle ?? "Ninguno"}");
                     }
                     else
                     {
@@ -95,7 +105,7 @@ public class ColaboradorService
                     await _colaboradorRepository.RegistrarBaja(idEmployeeBuk.ToString(), colaborador.ConceptoBaja!, colaborador.FechaBaja!);
                     break;                
             }
-            await RegistrarBitacoraAsync(BitacoraDTO.Exito(idEmployeeBuk, eventType));
+            await RegistrarBitacoraAsync(BitacoraDTO.Exito(idEmployeeBuk, eventType, detalle));
             return GetColaboradorResult.Ok(colaborador);
         }
         catch (InvalidOperationException ex)
@@ -404,6 +414,25 @@ public class ColaboradorService
         await _colaboradorRepository.Insertar(colaborador, nuevoCodigoPersonal);
 
 
+    }
+
+    // Se ejecuta después del UPDATE: una acción que falla se registra en bitácora sin revertir la actualización.
+    private async Task EjecutarAccionesCambioAsync(long idEmployeeBuk, string eventType, ColaboradorDTO colaborador, IReadOnlyList<CambioColaborador> cambios)
+    {
+        foreach (var cambio in cambios)
+        {
+            foreach (var accion in _accionesCambio.Where(a => a.Campo == cambio.Campo))
+            {
+                try
+                {
+                    await accion.EjecutarAsync(colaborador, cambio);
+                }
+                catch (Exception ex)
+                {
+                    await RegistrarBitacoraAsync(BitacoraDTO.Error(idEmployeeBuk, eventType, $"Error en {accion.GetType().Name} ({cambio}): {ex.GetBaseException().Message}"));
+                }
+            }
+        }
     }
 
     private async Task RegistrarBitacoraAsync(BitacoraDTO bitacora)
