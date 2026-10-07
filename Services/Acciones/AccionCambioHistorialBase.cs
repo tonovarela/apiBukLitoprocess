@@ -16,8 +16,9 @@ public abstract class AccionCambioHistorialBase(IHistorialRepository historialRe
 
     public virtual async Task EjecutarAsync(ColaboradorDTO colaborador, CambioColaborador cambio)
     {
-        EventLogger.Info("cambio_colaborador", new { colaborador.IdColaborador, cambio.Campo, cambio.Anterior, cambio.Nuevo });
-        string? id = await historialRepository.InsertarHeader(Motivo);
+        EventLogger.Info("cambio_colaborador", new { colaborador.IdColaborador, cambio.Campo, cambio.Anterior, cambio.Nuevo });        
+        string? id = await historialRepository.InsertarHeader(Motivo);        
+        EventLogger.Info("historial_header_insertado", new { colaborador.IdColaborador, Motivo, id });
         await historialRepository.InsertarDetalle(colaborador.IdColaborador, id ?? "0");
     }
 }

@@ -12,11 +12,11 @@ namespace apiBukLitoprocess.repository.implementation
          private readonly ILogger<HistorialRepository> _logger;
          private readonly ILogger _sqlLogger;
 
-        public HistorialRepository(DbConnectionFactory dbConnectionFactory, ILogger<HistorialRepository> logger, ILogger sqlLogger)
+        public HistorialRepository(DbConnectionFactory dbConnectionFactory, ILogger<HistorialRepository> logger, ILoggerFactory loggerFactory)
         {
             _dbConnectionFactory = dbConnectionFactory;
             _logger = logger;
-            _sqlLogger = sqlLogger;
+            _sqlLogger = loggerFactory.CreateLogger("SqlQueries");
         }
 
         public async Task InsertarDetalle(string personal,string idHistorial)
@@ -24,7 +24,6 @@ namespace apiBukLitoprocess.repository.implementation
             string sql=@"
                         Insert Into RHD (ID, Renglon, Personal, SueldoDiario, SDI, TipoContrato, PeriodoTipo, Jornada, TipoSueldo, Categoria,
                                 Departamento, Puesto, Grupo, FechaAlta, FechaAntiguedad, ReportaA, CentroCostos)
-                        Values
                         Select @ID, 2048, Personal, SueldoDiario, SDI, TipoContrato, PeriodoTipo, Jornada, TipoSueldo, Categoria,
                         Departamento, Puesto, Grupo, FechaAlta, FechaAntiguedad, ReportaA, CentroCostos
                         From Personal
@@ -36,7 +35,6 @@ namespace apiBukLitoprocess.repository.implementation
             command.Parameters.AddWithValue("@ID", idHistorial);    
             _logger.LogInformation("Inserting detalle for personal: {personal} with idHistorial: {idHistorial}", personal, idHistorial);
             _sqlLogger.LogInformation("Executing SQL: {sql} with parameters: personal={personal}, idHistorial={idHistorial}", sql, personal, idHistorial);
-            await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
         }
 
@@ -50,7 +48,6 @@ namespace apiBukLitoprocess.repository.implementation
             using var command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("@motivo", motivo);
 
-            await connection.OpenAsync();
             _logger.LogInformation("Inserting header with motivo: {motivo}", motivo);
             _sqlLogger.LogInformation("Executing SQL: {sql} with parameter: motivo={motivo}", sql, motivo);
             var id = await command.ExecuteScalarAsync();

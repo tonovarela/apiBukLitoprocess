@@ -77,8 +77,8 @@ public class ColaboradorService
                     var colaboradorDB = await _colaboradorRepository.ObtenerPorUsuario(idEmployeeBuk.ToString());
                     if (colaboradorDB is not null)
                     {
-                        Console.WriteLine($"Actualizando colaborador existente con ID Buk: {idEmployeeBuk}");
-                        var cambios = ColaboradorComparador.Comparar(colaboradorDB, colaborador);
+                        Console.WriteLine($"Actualizando colaborador existente con ID Buk: {idEmployeeBuk}");                                                                        
+                        var cambios = ColaboradorComparador.Comparar(colaboradorDB, colaborador);                        
                         await _colaboradorRepository.Actualizar(colaborador);
                         await EjecutarAccionesAsync(idEmployeeBuk, eventType, colaborador, cambios);
                         detalle = cambios.Count > 0 ? $"Cambios: {string.Join("; ", cambios)}" : null;
@@ -405,6 +405,7 @@ public class ColaboradorService
             {
                 try
                 {
+                    Console.WriteLine($"Ejecutando acción {accion.GetType().Name} para cambio de campo {cambio.Campo} del colaborador con ID Buk: {idEmployeeBuk}");    
                     await accion.EjecutarAsync(colaborador, cambio);
                 }
                 catch (Exception ex)
