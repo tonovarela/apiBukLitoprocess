@@ -78,11 +78,11 @@ public class ColaboradorService
                     if (colaboradorDB is not null)
                     {
                         Console.WriteLine($"Actualizando colaborador existente con ID Buk: {idEmployeeBuk}");                                                                        
-                        var cambios = ColaboradorComparador.Comparar(colaboradorDB, colaborador);                        
+                        //var cambios = ColaboradorComparador.Comparar(colaboradorDB, colaborador);                        
                         await _colaboradorRepository.Actualizar(colaborador);
-                        await EjecutarAccionesAsync(idEmployeeBuk, eventType, colaborador, cambios);
-                        detalle = cambios.Count > 0 ? $"Cambios: {string.Join("; ", cambios)}" : null;
-                        Console.WriteLine($"Cambios detectados: {detalle ?? "Ninguno"}");
+                        // await EjecutarAccionesAsync(idEmployeeBuk, eventType, colaborador, cambios);
+                        // detalle = cambios.Count > 0 ? $"Cambios: {string.Join("; ", cambios)}" : null;
+                        // Console.WriteLine($"Cambios detectados: {detalle ?? "Ninguno"}");
                     }
                     else
                     {
