@@ -39,11 +39,18 @@ public class ColaboradorRepository : IColaboradorRepository
     private async Task<string> ObtenerDepartamento(string centro_costos)
     {
         using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
-        var query = @"
-                    select
-                    Descripcion as Departamento from centrocostos
-                    where estatus = 'alta'
-                    and centrocostos=@centro_costos";
+        // string query = @"
+        //             select
+        //             Descripcion as Departamento from centrocostos
+        //             where estatus = 'alta'
+        //             and centrocostos=@centro_costos";
+        string query = @"
+                    Select 
+                    Departamento= Valor
+                    From TablaStD
+                   where TablaSt='CCDepto'
+                   and Nombre=@centro_costos
+                   ";
         using var command = new SqlCommand(query, connection);
         command.Parameters.AddWithValue("@centro_costos", centro_costos);
         using var reader = await command.ExecuteReaderAsync();
