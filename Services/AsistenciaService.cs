@@ -16,9 +16,6 @@ public class AsistenciaService
         _asistenciaRepository = asistenciaRepository;
     }
 
-
-
-
     public async Task EliminarJornadasDesde(DateOnly desde)
     {
         await _asistenciaRepository.EliminarJornadaDesdeFecha(desde);
