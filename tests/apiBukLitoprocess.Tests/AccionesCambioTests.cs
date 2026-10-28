@@ -44,11 +44,12 @@ public class AccionesCambioTests
         historial.Setup(h => h.InsertarHeader(motivo)).ReturnsAsync("77");
         var accion = Crear(tipo, historial.Object);
 
-        await accion.EjecutarAsync(Colaborador, new CambioColaborador(campo, "antes", "despues"));
+        var cambio = new CambioColaborador(campo, "antes", "despues");
+        await accion.EjecutarAsync(Colaborador, cambio);
 
         Assert.Equal(campo, accion.Campo);
         historial.Verify(h => h.InsertarHeader(motivo), Times.Once);
-        historial.Verify(h => h.InsertarDetalle("1001", "77"), Times.Once);
+        historial.Verify(h => h.InsertarDetalle("1001", "77", cambio), Times.Once);
         historial.VerifyNoOtherCalls();
     }
 
@@ -61,7 +62,7 @@ public class AccionesCambioTests
 
         await accion.EjecutarAsync(Colaborador, new CambioColaborador(CampoColaborador.Puesto, "Analista", "Gerente"));
 
-        historial.Verify(h => h.InsertarDetalle("1001", "0"), Times.Once);
+        historial.Verify(h => h.InsertarDetalle("1001", "0", It.IsAny<CambioColaborador>()), Times.Once);
     }
 
     [Fact]
@@ -74,6 +75,6 @@ public class AccionesCambioTests
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             accion.EjecutarAsync(Colaborador, new CambioColaborador(CampoColaborador.Jornada, "VW", "XX")));
 
-        historial.Verify(h => h.InsertarDetalle(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        historial.Verify(h => h.InsertarDetalle(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CambioColaborador>()), Times.Never);
     }
 }
