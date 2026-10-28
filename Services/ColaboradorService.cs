@@ -3,12 +3,13 @@ using System.Text.Json;
 using apiBukLitoprocess.Clases;
 using apiBukLitoprocess.conf;
 using apiBukLitoprocess.DTOs;
-using apiBukLitoprocess.helpers;
+
 using apiBukLitoprocess.mappers;
 using apiBukLitoprocess.Models;
 using apiBukLitoprocess.Services.Acciones;
 using apiBukLitoprocess.repository.interfaces;
 using apiBukLitoprocess.responseApi;
+using apiBukLitoprocess.helpers;
 
 
 namespace apiBukLitoprocess.Services;
@@ -60,7 +61,6 @@ public class ColaboradorService
         }
 
         GetColaboradorResult result = await GetColaboradorByIdBuk(idEmployeeBuk,true);
-
         if (result.IsError || result.colaborador is null)
         {
             await RegistrarBitacoraAsync(BitacoraDTO.Error(idEmployeeBuk, eventType, $"No se pudo obtener el colaborador de Buk: {result.ErrorMessage}"));
@@ -78,11 +78,11 @@ public class ColaboradorService
                     if (colaboradorDB is not null)
                     {
                         Console.WriteLine($"Actualizando colaborador existente con ID Buk: {idEmployeeBuk}");                                                                        
-                        //var cambios = ColaboradorComparador.Comparar(colaboradorDB, colaborador);                        
+                        var cambios = ColaboradorComparador.Comparar(colaboradorDB, colaborador);                        
                         await _colaboradorRepository.Actualizar(colaborador);
-                        // await EjecutarAccionesAsync(idEmployeeBuk, eventType, colaborador, cambios);
-                        // detalle = cambios.Count > 0 ? $"Cambios: {string.Join("; ", cambios)}" : null;
-                        // Console.WriteLine($"Cambios detectados: {detalle ?? "Ninguno"}");
+                         await EjecutarAccionesAsync(idEmployeeBuk, eventType, colaborador, cambios);
+                         detalle = cambios.Count > 0 ? $"Cambios: {string.Join("; ", cambios)}" : null;
+                         Console.WriteLine($"Cambios detectados: {detalle ?? "Ninguno"}");
                     }
                     else
                     {
@@ -91,8 +91,7 @@ public class ColaboradorService
                     }
                     break;               
                 case "job_termination":
-
-                    await _colaboradorRepository.RegistrarBaja(idEmployeeBuk.ToString(), colaborador.ConceptoBaja!, colaborador.FechaBaja!);
+                    //await _colaboradorRepository.RegistrarBaja(idEmployeeBuk.ToString(), colaborador.ConceptoBaja!, colaborador.FechaBaja!);
                     break;                
             }
             await RegistrarBitacoraAsync(BitacoraDTO.Exito(idEmployeeBuk, eventType, detalle));

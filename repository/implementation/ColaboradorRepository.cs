@@ -82,7 +82,7 @@ public class ColaboradorRepository : IColaboradorRepository
                                 Beneficiario3 = @Beneficiario3,
                                 Beneficiario3Nacimiento = @BeneficiarioNacimiento3,
                                 BeneficiarioNacimiento = @BeneficiarioNacimiento1,
-                                CentroCostos = @CentroCostos,
+                                --CentroCostos = @CentroCostos,
                                 CodigoPostal=@CodigoPostal,
                                 Colonia=@Colonia,
                                 CtaDinero=@CtaDinero,
@@ -96,7 +96,7 @@ public class ColaboradorRepository : IColaboradorRepository
                                 Empresa=@Empresa,
                                 Estado=@Estado,
                                 EstadoCivil=@EstadoCivil,
-                                Jornada=@FactorJornada,
+                                
                                 FechaAlta = @FechaAlta,
                                 FechaNacimiento=@FechaNacimiento,
                                 FormaPago=@FormaPago,
@@ -117,15 +117,15 @@ public class ColaboradorRepository : IColaboradorRepository
                                 Porcentaje = @PorcentajeBeneficiario1,
                                 Porcentaje2 = @PorcentajeBeneficiario2,
                                 Porcentaje3 = @PorcentajeBeneficiario3,
-                                Puesto = @Puesto,
+                                
                                 Registro=@Curp,
                                 Registro2=@Rfc,
                                 Registro3=@NSS,
-                                ReportaA=@ReportaA,
+                                
                                 Sexo=@Sexo,
                                 Sindicato = @Sindicato,
                                 SucursalTrabajo=@SucursalTrabajo,
-                                SueldoDiario=@SalarioDiario,
+                                
                                 Telefono=@Telefono,
                                 TipoContrato = @TipoContrato,
                                 TipoSueldo=@TipoSueldo,                                
@@ -185,15 +185,15 @@ public class ColaboradorRepository : IColaboradorRepository
                 command.Parameters.AddWithValue("@PorcentajeBeneficiario3", colaborador.PorcentajeBeneficiario3 ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@NumExt", colaborador.NumExt ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@NumInt", colaborador.NumInt ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@CentroCostos", colaborador.CentroCostos ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Puesto", colaborador.Puesto ?? (object)DBNull.Value);
+                //command.Parameters.AddWithValue("@CentroCostos", colaborador.CentroCostos ?? (object)DBNull.Value);
+                //command.Parameters.AddWithValue("@Puesto", colaborador.Puesto ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Departamento", departamento ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@FechaAlta", colaborador.FechaAlta ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@SalarioDiario", colaborador.SalarioDiario);
+                //command.Parameters.AddWithValue("@SalarioDiario", colaborador.SalarioDiario);
                 command.Parameters.AddWithValue("@NumeroHijos", colaborador.NumeroHijos ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@ReportaA", reportaA ?? (object)DBNull.Value);
+                //command.Parameters.AddWithValue("@ReportaA", reportaA ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@PeriodoTipo", colaborador.PeriodoTipo ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@FactorJornada", colaborador.FactorJornada ?? (object)DBNull.Value);
+                //command.Parameters.AddWithValue("@FactorJornada", colaborador.FactorJornada ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@TipoContrato", colaborador.TipoContrato ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Sindicato", colaborador.Sindicato ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Categoria", colaborador.Categoria ?? (object)DBNull.Value);

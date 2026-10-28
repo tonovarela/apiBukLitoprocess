@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using Serilog.Filters;
 
+// Carga variables desde .env (si existe) para ejecución local con dotnet run
+DotNetEnv.Env.TraversePath().NoClobber().Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, services, loggerConfig) =>
