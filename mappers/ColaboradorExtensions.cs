@@ -90,7 +90,7 @@ public static class ColaboradorExtensions
             Poblacion = colaborador.custom_attributes?.Delegacion ?? String.Empty,
 
             BossId= colaborador.current_job?.boss?.id ?? 0,
-            Puesto = colaborador.current_job?.role?.name ?? String.Empty,
+            Puesto = colaborador.current_job?.role?.name?.ToUpperInvariant() ?? String.Empty,
 
             ConceptoBaja =colaborador.termination_reason ??String.Empty,
 

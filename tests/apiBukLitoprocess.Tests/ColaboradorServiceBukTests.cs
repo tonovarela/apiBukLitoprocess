@@ -96,13 +96,37 @@ public class ColaboradorServiceBukTests
         Assert.Equal("1001", colaborador.IdColaborador);
         Assert.Equal("Masculino", colaborador.Sexo);
         Assert.Equal(999, colaborador.BossId);
-        Assert.Equal("Analista", colaborador.Puesto);
+        Assert.Equal("ANALISTA", colaborador.Puesto);
         Assert.Equal("Semanal", colaborador.PeriodoTipo);
 
         // El endpoint consultado debe ser employees/{id}
         Assert.NotNull(handler.UltimaPeticion);
         Assert.Contains("employees/12345", handler.UltimaPeticion!.RequestUri!.ToString());
         Assert.Equal(1, handler.NumeroLlamadas);
+    }
+
+    [Fact]
+    public async Task GetColaboradorByIdBuk_PuestoConAcentos_MayusculasConservandoAcentos()
+    {
+        var json = JsonColaboradorValido.Replace("\"Analista\"", "\"Diseñador Gráfico\"");
+        var servicio = CrearServicio(HttpStatusCode.OK, json, out _);
+
+        var resultado = await servicio.GetColaboradorByIdBuk(12345);
+
+        Assert.False(resultado.IsError);
+        Assert.Equal("DISEÑADOR GRÁFICO", resultado.colaborador!.Puesto);
+    }
+
+    [Fact]
+    public async Task GetColaboradorByIdBuk_SinRole_PuestoVacio()
+    {
+        var json = JsonColaboradorValido.Replace("\"role\": { \"name\": \"Analista\" }", "\"role\": null");
+        var servicio = CrearServicio(HttpStatusCode.OK, json, out _);
+
+        var resultado = await servicio.GetColaboradorByIdBuk(12345);
+
+        Assert.False(resultado.IsError);
+        Assert.Equal(string.Empty, resultado.colaborador!.Puesto);
     }
 
     [Fact]

@@ -97,6 +97,19 @@ public class ColaboradorComparadorTests
     }
 
     [Fact]
+    public void Comparar_PuestoEnMayusculasDesdeBuk_NuevoEnMayusculas()
+    {
+        var buk = ColaboradorBuk();
+        buk.Puesto = "GERENTE";
+
+        var cambios = ColaboradorComparador.Comparar(ColaboradorBD(), buk);
+
+        var cambio = Assert.Single(cambios);
+        Assert.Equal(CampoColaborador.Puesto, cambio.Campo);
+        Assert.Equal("GERENTE", cambio.Nuevo);
+    }
+
+    [Fact]
     public void Comparar_SueldoNuloEnBD_EsCambio()
     {
         var bd = ColaboradorBD();
