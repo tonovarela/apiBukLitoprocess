@@ -1,6 +1,6 @@
 # SPEC 01 — Puesto y Departamento en mayúsculas al sincronizar de Buk a Intelisis
 
-> **Estado:** Aprobado
+> **Estado:** Implementada
 > **Depende de:** Ninguna
 > **Fecha:** 2026-11-05
 > **Objetivo:** Que los valores de Puesto y Departamento que la API escribe en Intelisis, tanto en el alta como en el movimiento de cambio, queden siempre en mayúsculas.
