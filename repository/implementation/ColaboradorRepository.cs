@@ -56,7 +56,7 @@ public class ColaboradorRepository : IColaboradorRepository
         using var reader = await command.ExecuteReaderAsync();
         if (await reader.ReadAsync())
         {
-            return reader["Departamento"].ToString() ?? String.Empty;
+            return (reader["Departamento"].ToString() ?? String.Empty).ToUpperInvariant();
         }
         return String.Empty;
     }
@@ -187,7 +187,7 @@ public class ColaboradorRepository : IColaboradorRepository
                 command.Parameters.AddWithValue("@NumInt", colaborador.NumInt ?? (object)DBNull.Value);
                 //command.Parameters.AddWithValue("@CentroCostos", colaborador.CentroCostos ?? (object)DBNull.Value);
                 //command.Parameters.AddWithValue("@Puesto", colaborador.Puesto ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Departamento", departamento ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Departamento", departamento);
                 command.Parameters.AddWithValue("@FechaAlta", colaborador.FechaAlta ?? (object)DBNull.Value);
                 //command.Parameters.AddWithValue("@SalarioDiario", colaborador.SalarioDiario);
                 command.Parameters.AddWithValue("@NumeroHijos", colaborador.NumeroHijos ?? (object)DBNull.Value);
@@ -505,7 +505,7 @@ public class ColaboradorRepository : IColaboradorRepository
             command.Parameters.AddWithValue("@TipoContrato", colaborador.TipoContrato ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@Sindicato", colaborador.Sindicato ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@FechaAlta", colaborador.FechaAlta ?? (object)DBNull.Value);
-            command.Parameters.AddWithValue("@Departamento", departamento ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@Departamento", departamento);
             command.Parameters.AddWithValue("@DireccionNumero", colaborador.NumExt ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@DireccionNumeroInt", colaborador.NumInt ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@NumeroHijos", colaborador.NumeroHijos ?? (object)DBNull.Value);
