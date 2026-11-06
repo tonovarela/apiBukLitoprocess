@@ -8,6 +8,7 @@ public class AusenciaDTO
     public required string tipo { get; set; }
     public required string fecha_inicio { get; set; }
     public required string fecha_fin { get; set; }
+    public  string? fecha_actualizacion { get; set; }
 
     public required float dias { get; set; }
     public required float dias_proporcional { get; set; }

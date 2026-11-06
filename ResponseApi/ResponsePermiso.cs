@@ -24,6 +24,10 @@ public partial class PermisoRest
 
     [JsonPropertyName("end_date")]
     public required DateOnly Fecha_fin { get; set; }
+
+
+    [JsonPropertyName("updated_at")]
+    public required  DateTimeOffset? Fecha_Actualizacion { get; set; }
     
 
     [JsonPropertyName("days_count")]

@@ -140,9 +140,9 @@ public class AusenciaRepository : IAusenciaRepository
 
         const string sql = @"
         INSERT INTO Buk.dbo.Ausencias
-            (id_ausencia, id_colaborador,personal,justificacion, tipo, fecha_inicio,fecha_fin, hora_inicio, hora_fin, clasificacion,dias, dias_percent,goce_sueldo,licencia)
+            (id_ausencia, id_colaborador,personal,justificacion, tipo, fecha_inicio,fecha_fin, hora_inicio, hora_fin, clasificacion,dias, dias_percent,goce_sueldo,licencia,fecha_actualizacion)
         VALUES
-            (@IdAusencia, @IdColaborador, @Personal, @Justificacion, @Tipo, @FechaInicio, @FechaFin, @HoraEntrada, @HoraSalida, @Clasificacion, @Dias, @DiasProporcional, @ConGoceSueldo, @Licencia);";
+            (@IdAusencia, @IdColaborador, @Personal, @Justificacion, @Tipo, @FechaInicio, @FechaFin, @HoraEntrada, @HoraSalida, @Clasificacion, @Dias, @DiasProporcional, @ConGoceSueldo, @Licencia,@FechaActualizacion);";
 
         try
         {
@@ -155,6 +155,7 @@ public class AusenciaRepository : IAusenciaRepository
             cmd.Parameters.Add("@Tipo", SqlDbType.VarChar, 50);
             cmd.Parameters.Add("@FechaInicio", SqlDbType.DateTime);
             cmd.Parameters.Add("@FechaFin", SqlDbType.DateTime);
+            cmd.Parameters.Add("@FechaActualizacion", SqlDbType.DateTime);
             cmd.Parameters.Add("@HoraEntrada", SqlDbType.Time);
             cmd.Parameters.Add("@HoraSalida", SqlDbType.Time);
             cmd.Parameters.Add("@Clasificacion", SqlDbType.VarChar, 50);
@@ -188,6 +189,7 @@ public class AusenciaRepository : IAusenciaRepository
                 cmd.Parameters["@Tipo"].Value = s.tipo;
                 cmd.Parameters["@FechaInicio"].Value = fechaInicio;
                 cmd.Parameters["@FechaFin"].Value = fechaFin;
+                cmd.Parameters["@FechaActualizacion"].Value = s.fecha_actualizacion != null ? DateTime.Parse(s.fecha_actualizacion, CulturaMx) : (object)DBNull.Value;
                 cmd.Parameters["@Clasificacion"].Value = clasificacion;
                 cmd.Parameters["@HoraEntrada"].Value = horaEntrada;
                 cmd.Parameters["@HoraSalida"].Value = horaSalida;

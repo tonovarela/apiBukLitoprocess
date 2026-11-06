@@ -23,6 +23,9 @@ public class AusenciaRest
     [JsonPropertyName("end_date")]
     public required DateOnly Fecha_fin { get; set; }
 
+    [JsonPropertyName("updated_at")]
+    public required  DateTimeOffset? Fecha_Actualizacion { get; set; }
+
     [JsonPropertyName("absence_type_code")]
     public required string Tipo { get; set; }
 
