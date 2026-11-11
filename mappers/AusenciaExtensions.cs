@@ -31,6 +31,7 @@ public static class AusenciaExtensions
     
     public static AusenciaDTO toAusenciaDTO(this AusenciaRest ausencia)
     {
+     //  Console.WriteLine(ausencia.Fecha_Actualizacion?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss",CultureInfo.InvariantCulture));
         return new AusenciaDTO
         {
             id_Ausencia = ausencia.Id,            
@@ -40,7 +41,7 @@ public static class AusenciaExtensions
             dias_proporcional = ausencia.dias_proporcional,
             fecha_inicio= ausencia.Fecha_inicio.ToString("yyyy-MM-dd"),
             fecha_fin = ausencia.Fecha_fin.ToString("yyyy-MM-dd"),
-            fecha_actualizacion = ausencia.Fecha_Actualizacion?.ToLocalTime().ToString("yyyy-MM-dd",CultureInfo.InvariantCulture),
+            fecha_actualizacion = ausencia.Fecha_Actualizacion?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss",CultureInfo.InvariantCulture),
             justificacion = ausencia.Justificacion,            
             horaEntrada = null,
             horaSalida = null ,
@@ -60,7 +61,7 @@ public static class AusenciaExtensions
             dias_proporcional = permiso.dias_proporcional,            
             fecha_inicio = permiso.Fecha_inicio.ToString("yyyy-MM-dd"),
             fecha_fin = permiso.Fecha_fin.ToString("yyyy-MM-dd"),
-            fecha_actualizacion = permiso.Fecha_Actualizacion?.ToLocalTime().ToString("yyyy-MM-dd",CultureInfo.InvariantCulture),
+            fecha_actualizacion = permiso.Fecha_Actualizacion?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss",CultureInfo.InvariantCulture),
             justificacion = permiso.Justificacion,
             horaEntrada = permiso.Inicio,            
             horaSalida = permiso.Fin            ,
