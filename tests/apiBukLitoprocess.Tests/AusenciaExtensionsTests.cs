@@ -11,9 +11,9 @@ namespace apiBukLitoprocess.Tests;
 public class AusenciaExtensionsTests
 {
     [Theory]
-    [InlineData("2026-11-18T10:00:48.472-06:00", "2026-11-18")]
-    [InlineData("2026-11-18T20:30:00-06:00", "2026-11-18")] // en UTC sería 2026-11-19
-    [InlineData("2026-11-19T02:30:00Z", "2026-11-18")]      // UTC -> 20:30 en México
+    [InlineData("2026-11-18T10:00:48.472-06:00", "2026-11-18 10:00:48")]
+    [InlineData("2026-11-18T20:30:00-06:00", "2026-11-18 20:30:00")] // en UTC sería 2026-11-19
+    [InlineData("2026-11-19T02:30:00Z", "2026-11-18 20:30:00")]      // UTC -> 20:30 en México
     public void Permiso_FechaActualizacion_SeConvierteAHoraMexico(string updatedAt, string esperado)
     {
         var permiso = new PermisoRest

@@ -12,7 +12,7 @@ public static class AusenciaExtensions
 
     private static string? FormatearFechaMx(DateTimeOffset? fecha) =>
         fecha is { } f
-            ? TimeZoneInfo.ConvertTime(f, ZonaMx).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+            ? TimeZoneInfo.ConvertTime(f, ZonaMx).ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
             : null;
 
 

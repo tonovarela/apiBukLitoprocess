@@ -189,7 +189,7 @@ public class AusenciaRepository : IAusenciaRepository
                 cmd.Parameters["@Tipo"].Value = s.tipo;
                 cmd.Parameters["@FechaInicio"].Value = fechaInicio;
                 cmd.Parameters["@FechaFin"].Value = fechaFin;
-                cmd.Parameters["@FechaActualizacion"].Value = s.fecha_actualizacion != null ? DateTime.Parse(s.fecha_actualizacion, CulturaMx) : (object)DBNull.Value;
+                cmd.Parameters["@FechaActualizacion"].Value = s.fecha_actualizacion != null ? DateTime.ParseExact(s.fecha_actualizacion, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) : (object)DBNull.Value;
                 cmd.Parameters["@Clasificacion"].Value = clasificacion;
                 cmd.Parameters["@HoraEntrada"].Value = horaEntrada;
                 cmd.Parameters["@HoraSalida"].Value = horaSalida;
