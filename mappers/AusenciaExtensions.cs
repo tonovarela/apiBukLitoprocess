@@ -7,6 +7,13 @@ namespace apiBukLitoprocess.mappers;
 
 public static class AusenciaExtensions
 {
+    // Zona horaria explícita: el contenedor corre en UTC, así que ToLocalTime() desfasaba +6h.
+    private static readonly TimeZoneInfo ZonaMx = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
+
+    private static string? FormatearFechaMx(DateTimeOffset? fecha) =>
+        fecha is { } f
+            ? TimeZoneInfo.ConvertTime(f, ZonaMx).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+            : null;
 
 
      public static AusenciaDTO toAusenciaDTO(this IncapacidadRest incapacidadRest)
@@ -31,7 +38,6 @@ public static class AusenciaExtensions
     
     public static AusenciaDTO toAusenciaDTO(this AusenciaRest ausencia)
     {
-     //  Console.WriteLine(ausencia.Fecha_Actualizacion?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss",CultureInfo.InvariantCulture));
         return new AusenciaDTO
         {
             id_Ausencia = ausencia.Id,            
@@ -41,7 +47,7 @@ public static class AusenciaExtensions
             dias_proporcional = ausencia.dias_proporcional,
             fecha_inicio= ausencia.Fecha_inicio.ToString("yyyy-MM-dd"),
             fecha_fin = ausencia.Fecha_fin.ToString("yyyy-MM-dd"),
-            fecha_actualizacion = ausencia.Fecha_Actualizacion?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss",CultureInfo.InvariantCulture),
+            fecha_actualizacion = FormatearFechaMx(ausencia.Fecha_Actualizacion),
             justificacion = ausencia.Justificacion,            
             horaEntrada = null,
             horaSalida = null ,
@@ -61,7 +67,7 @@ public static class AusenciaExtensions
             dias_proporcional = permiso.dias_proporcional,            
             fecha_inicio = permiso.Fecha_inicio.ToString("yyyy-MM-dd"),
             fecha_fin = permiso.Fecha_fin.ToString("yyyy-MM-dd"),
-            fecha_actualizacion = permiso.Fecha_Actualizacion?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss",CultureInfo.InvariantCulture),
+            fecha_actualizacion = FormatearFechaMx(permiso.Fecha_Actualizacion),
             justificacion = permiso.Justificacion,
             horaEntrada = permiso.Inicio,            
             horaSalida = permiso.Fin            ,
