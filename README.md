@@ -63,8 +63,8 @@ dotnet test
 
 ## Docker
 ```bash
-docker build --platform linux/amd64 -t tonovarela/apibuklitoprocess:9.0.3 -t tonovarela/apibuklitoprocess:latest . \
-  && docker push tonovarela/apibuklitoprocess:9.0.3 \
+docker build --platform linux/amd64 -t tonovarela/apibuklitoprocess:9.0.4 -t tonovarela/apibuklitoprocess:latest . \
+  && docker push tonovarela/apibuklitoprocess:9.0.4 \
   && docker push tonovarela/apibuklitoprocess:latest
 ```
 
