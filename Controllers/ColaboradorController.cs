@@ -24,6 +24,7 @@ public class ColaboradorController : ControllerBase
 
         Console.WriteLine($"Received webhook event:for Employee ID: {payload.Data.EmployeeId}");
         var result = await _colaboradorService.handleEventWebhook(payload.Data);
+        
         if (result.IsError)
         {
             return StatusCode(result.StatusCode, new

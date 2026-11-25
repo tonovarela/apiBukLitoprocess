@@ -24,6 +24,7 @@ public class ColaboradorService
 {
     private readonly RestClientService _restClient;
     private readonly IColaboradorRepository _colaboradorRepository;
+    private readonly IHistorialRepository _historialRepository;
     private readonly IAusenciaRepository _ausenciaRepository;
     private readonly IEnumerable<IAccionCambioColaborador> _accionesCambio;
 
@@ -33,11 +34,16 @@ public class ColaboradorService
         "job_termination",
         "job_movement"
         };
-    public ColaboradorService(RestClientService restClient, IColaboradorRepository colaboradorRepository, IAusenciaRepository ausenciaRepository, IEnumerable<IAccionCambioColaborador>? accionesCambio = null)
+    public ColaboradorService(RestClientService restClient,
+                             IColaboradorRepository colaboradorRepository,
+                             IAusenciaRepository ausenciaRepository,
+                             IHistorialRepository historialRepository,
+                             IEnumerable<IAccionCambioColaborador>? accionesCambio = null)
     {
         _restClient = restClient;
         _colaboradorRepository = colaboradorRepository;
         _ausenciaRepository = ausenciaRepository;
+        _historialRepository = historialRepository;
         _accionesCambio = accionesCambio ?? [];
     }
 
@@ -45,7 +51,7 @@ public class ColaboradorService
     public async Task<GetColaboradorResult> handleEventWebhook(WebhookPayloadBody bodyPayload)
     {
         string eventType = bodyPayload.EventType;
-        int idEmployeeBuk = bodyPayload.EmployeeId;         
+        int idEmployeeBuk = bodyPayload.EmployeeId;
         EventLogger.Info("webhook_event", bodyPayload);
 
         if (string.IsNullOrWhiteSpace(eventType))
@@ -53,14 +59,12 @@ public class ColaboradorService
             await RegistrarBitacoraAsync(BitacoraDTO.NoSoportado(idEmployeeBuk, eventType));
             return GetColaboradorResult.Fail("Evento inválido", 400);
         }
-
         if (!EventosValidos.Contains(eventType))
         {
             await RegistrarBitacoraAsync(BitacoraDTO.NoSoportado(idEmployeeBuk, eventType));
             return GetColaboradorResult.Fail("Evento no soportado", 400);
         }
-
-        GetColaboradorResult result = await GetColaboradorByIdBuk(idEmployeeBuk,true);
+        GetColaboradorResult result = await GetColaboradorByIdBuk(idEmployeeBuk, true);
         if (result.IsError || result.colaborador is null)
         {
             await RegistrarBitacoraAsync(BitacoraDTO.Error(idEmployeeBuk, eventType, $"No se pudo obtener el colaborador de Buk: {result.ErrorMessage}"));
@@ -68,31 +72,23 @@ public class ColaboradorService
         }
         ColaboradorDTO colaborador = result.colaborador;
         await AsignarJefeAsync(colaborador);
-        string? detalle = null;        
+        string? detalle = null;
+        Console.WriteLine($"Procesando evento webhook para Employee ID: {idEmployeeBuk}, Tipo de evento: {eventType}");
         try
         {
             switch (eventType)
             {
                 case "employee_update" or "job_movement":
-                    var colaboradorDB = await _colaboradorRepository.ObtenerPorUsuario(idEmployeeBuk.ToString());
-                    if (colaboradorDB is not null)
-                    {
-                        Console.WriteLine($"Actualizando colaborador existente con ID Buk: {idEmployeeBuk}");                                                                        
-                        var cambios = ColaboradorComparador.Comparar(colaboradorDB, colaborador);                        
-                        await _colaboradorRepository.Actualizar(colaborador);
-                         await EjecutarAccionesAsync(idEmployeeBuk, eventType, colaborador, cambios);
-                         detalle = cambios.Count > 0 ? $"Cambios: {string.Join("; ", cambios)}" : null;
-                         Console.WriteLine($"Cambios detectados: {detalle ?? "Ninguno"}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Colaborador con ID Buk: {idEmployeeBuk} no existe en la base de datos. Procediendo a registrar como nuevo colaborador.");
-                        await ProcesarJobHireAsync(idEmployeeBuk, colaborador);
-                    }
-                    break;               
+                    detalle = await ProcesarActualizacionAsync(idEmployeeBuk, eventType, colaborador);
+                    break;
                 case "job_termination":
-                    //await _colaboradorRepository.RegistrarBaja(idEmployeeBuk.ToString(), colaborador.ConceptoBaja!, colaborador.FechaBaja!);
-                    break;                
+                    if (!await ProcesarBajaAsync(idEmployeeBuk, colaborador))
+                    {                        
+                        await RegistrarBitacoraAsync(BitacoraDTO.Omitido(idEmployeeBuk, eventType, "No se encontró colaborador para procesar la baja."));
+                        return GetColaboradorResult.Ok(colaborador);
+                    }
+                    detalle = $"Baja: {colaborador.FechaBaja} - {colaborador.ConceptoBaja}";
+                    break;
             }
             await RegistrarBitacoraAsync(BitacoraDTO.Exito(idEmployeeBuk, eventType, detalle));
             return GetColaboradorResult.Ok(colaborador);
@@ -284,6 +280,9 @@ public class ColaboradorService
 
 
     #region Métodos privados
+
+
+   
     private async Task AsignarIDSIntelisis(List<SolicitudDTO> solicitudes)
     {
         var distinctIds = solicitudes.Select(s => s.id_colaborador).Distinct().ToList();
@@ -330,6 +329,45 @@ public class ColaboradorService
         {
             solicitud.personal = cache.GetValueOrDefault(solicitud.id_colaborador, String.Empty);
         }
+    }
+
+    // Actualiza el colaborador si ya existe en Intelisis; si no, lo da de alta. Devuelve el detalle para bitácora.
+    private async Task<string?> ProcesarActualizacionAsync(long idEmployeeBuk, string eventType, ColaboradorDTO colaborador)
+    {
+        var colaboradorDB = await _colaboradorRepository.ObtenerPorUsuario(idEmployeeBuk.ToString());
+        if (colaboradorDB is null)
+        {
+            Console.WriteLine($"Colaborador con ID Buk: {idEmployeeBuk} no existe en la base de datos. Procediendo a registrar como nuevo colaborador.");
+            await ProcesarJobHireAsync(idEmployeeBuk, colaborador);
+            return null;
+        }
+
+        Console.WriteLine($"Actualizando colaborador existente con ID Buk: {idEmployeeBuk}");
+        var cambios = ColaboradorComparador.Comparar(colaboradorDB, colaborador);
+        await _colaboradorRepository.Actualizar(colaborador);
+        await EjecutarAccionesAsync(idEmployeeBuk, eventType, colaborador, cambios);
+
+        string? detalle = cambios.Count > 0 ? $"Cambios: {string.Join("; ", cambios)}" : null;
+        Console.WriteLine($"Cambios detectados: {detalle ?? "Ninguno"}");
+        return detalle;
+    }
+
+    // Registra el movimiento de baja (header + detalle). Devuelve false si el colaborador no existe en Intelisis.
+    private async Task<bool> ProcesarBajaAsync(long idEmployeeBuk, ColaboradorDTO colaborador)
+    {
+        Console.WriteLine($"Procesando baja para colaborador con ID Buk: {idEmployeeBuk}");
+        if (string.IsNullOrWhiteSpace(colaborador.ConceptoBaja))
+            colaborador.ConceptoBaja = ColaboradorExtensions.ConceptoBajaPorDefecto;
+
+        var colaboradorDB = await _colaboradorRepository.ObtenerPorUsuario(idEmployeeBuk.ToString());
+        if (colaboradorDB is null)
+        {
+            Console.WriteLine($"No se encontró colaborador con ID Buk: {idEmployeeBuk} para procesar la baja.");
+            return false;
+        }
+
+        await _historialRepository.InsertarBaja(colaborador.FechaBaja!, colaborador.ConceptoBaja, colaboradorDB.Personal);
+        return true;
     }
 
     private async Task ProcesarJobHireAsync(long idEmployeeBuk, ColaboradorDTO colaborador)
@@ -387,7 +425,7 @@ public class ColaboradorService
     private async Task RegistrarSiNoExisteAsync(ColaboradorDTO colaborador)
     {
 
-        int nuevoCodigoPersonal;        
+        int nuevoCodigoPersonal;
         nuevoCodigoPersonal = await _colaboradorRepository.ObtenerSiguienteClavePersonal(colaborador.esBecario);
         colaborador.IdColaborador = nuevoCodigoPersonal.ToString();
         await _colaboradorRepository.Insertar(colaborador, nuevoCodigoPersonal);
@@ -404,7 +442,7 @@ public class ColaboradorService
             {
                 try
                 {
-                    Console.WriteLine($"Ejecutando acción {accion.GetType().Name} para cambio de campo {cambio.Campo} del colaborador con ID Buk: {idEmployeeBuk}");    
+                    Console.WriteLine($"Ejecutando acción {accion.GetType().Name} para cambio de campo {cambio.Campo} del colaborador con ID Buk: {idEmployeeBuk}");
                     await accion.EjecutarAsync(colaborador, cambio);
                 }
                 catch (Exception ex)

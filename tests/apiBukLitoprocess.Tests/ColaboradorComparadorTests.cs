@@ -170,6 +170,7 @@ public class ColaboradorComparadorTests
             new RestClientService(factory.Object),
             repositorio.Object,
             new Mock<IAusenciaRepository>().Object,
+            new Mock<IHistorialRepository>().Object,
             accionesCambio: [accionSueldo, accionPuesto]);
 
         var resultado = await servicio.handleEventWebhook(new WebhookPayloadBody

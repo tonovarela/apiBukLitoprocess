@@ -18,8 +18,44 @@ public static class ColaboradorExtensions
         static Dictionary<string, string> equivalenciasContratos = new Dictionary<string, string>
     {
         { "Sindicalizados1", "SINDICATO INDUSTRIAL" },
-        { "Sindicalizados2", "SINDICATO INDUSTRIAL" }        
+        { "Sindicalizados2", "SINDICATO INDUSTRIAL" }
     };
+
+    // Concepto de baja: Buk (termination_reason) -> Lito (dbo.Personal.ConceptoBaja).
+    // El webservice manda el código del select baja_operation_mexico_razon (p. ej. "renuncia_voluntaria");
+    // también se aceptan los textos que muestra Buk por si algún endpoint los envía.
+    static readonly Dictionary<string, string> equivalenciasConceptoBaja = new(StringComparer.OrdinalIgnoreCase)
+    {
+        // Códigos de Buk
+        { "abandono_empleo", "Abandono de Empleo" },
+        { "ausentismo", "Ausentismo" },
+        { "muerte", "Defuncion" },
+        { "jubilacion", "Pension" },
+        { "renuncia_voluntaria", "Separ. Voluntaria" },
+        { "terminacion_natural", "Termino de Contrato" },
+
+        // Textos de Buk
+        { "Abandono de empleo", "Abandono de Empleo" },
+        { "Jubilación", "Pension" },
+        { "Renuncia voluntaria", "Separ. Voluntaria" },
+        { "Terminación natural del contrato por obra o tiempo determinado", "Termino de Contrato" },
+    };
+
+    public const string ConceptoBajaPorDefecto = "Problemas Familiares";
+
+    /// <summary>
+    /// Convierte el concepto de baja de Buk al concepto de Lito.
+    /// Null o vacío devuelve "" (colaborador activo); un concepto no mapeado devuelve "Problemas Familiares".
+    /// </summary>
+    public static string MapearConceptoBaja(string? conceptoBuk)
+    {
+        if (string.IsNullOrWhiteSpace(conceptoBuk))
+            return string.Empty;
+
+        return equivalenciasConceptoBaja.TryGetValue(conceptoBuk.Trim(), out var conceptoLito)
+            ? conceptoLito
+            : ConceptoBajaPorDefecto;
+    }
 
      public static ColaboradorDTO ToColaboradorDTO(this ColaboradorResponse colaborador)
     {        
@@ -92,10 +128,10 @@ public static class ColaboradorExtensions
             BossId= colaborador.current_job?.boss?.id ?? 0,
             Puesto = colaborador.current_job?.role?.name?.ToUpperInvariant() ?? String.Empty,
 
-            ConceptoBaja =colaborador.termination_reason ??String.Empty,
+            ConceptoBaja = MapearConceptoBaja(colaborador.termination_reason),
 
             FechaAlta = colaborador.active_since ,
-            FechaBaja = colaborador.active_until,
+            FechaBaja = colaborador.active_until == null ? null : colaborador.active_until.Value.ToString("yyyy-MM-dd"),
             SalarioDiario = (colaborador.current_job?.wage  ?? 0) / 30,
             Estado = colaborador.custom_attributes?.lugarNacimiento ?? String.Empty,
             Banco = banco,

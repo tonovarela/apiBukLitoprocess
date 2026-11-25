@@ -64,5 +64,56 @@ namespace apiBukLitoprocess.repository.implementation
             var id = await command.ExecuteScalarAsync();
             return id?.ToString();
         }
+
+        // Inserta el movimiento de baja (RH) y su renglón (RHD) en una sola transacción:
+        // si cualquiera de los dos falla, no queda nada guardado.
+        public async Task<string> InsertarBaja(string fecha_baja, string motivo, string personal)
+        {
+            const string sqlHeader = @"
+                Insert Into RH (Empresa, Mov, FechaEmision, Concepto, Moneda, TipoCambio, Usuario, Estatus, Ejercicio, Periodo)
+                Values ('LITO', 'Bajas', convert(date, @fecha_baja), @motivo, 'Pesos', 1, 'JGARCIA', 'SINAFECTAR', YEAR(GETDATE()), MONTH(GETDATE()));
+                SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
+            const string sqlDetalle = @"
+                Insert Into RHD (ID, Renglon, Personal, SueldoDiario, SDI, TipoContrato, PeriodoTipo, Jornada, TipoSueldo, Categoria,
+                                 Departamento, Puesto, Grupo, FechaAlta, FechaAntiguedad, ReportaA, CentroCostos)
+                Select @ID, 2048, Personal, SueldoDiario, SDI, TipoContrato, PeriodoTipo, Jornada, TipoSueldo, Categoria,
+                       Departamento, Puesto, Grupo, FechaAlta, FechaAntiguedad, ReportaA, CentroCostos
+                From Personal
+                Where Personal=@personal";
+
+            using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
+            using var tx = (SqlTransaction)await connection.BeginTransactionAsync();
+            try
+            {
+                using var header = new SqlCommand(sqlHeader, connection, tx);
+                header.Parameters.AddWithValue("@motivo", motivo);
+                header.Parameters.AddWithValue("@fecha_baja", fecha_baja);
+                _logger.LogInformation("Inserting header baja with fecha_baja: {fecha_baja} and motivo: {motivo}", fecha_baja, motivo);
+                _sqlLogger.LogInformation("Executing SQL: {sql} with parameters: fecha_baja={fecha_baja}, motivo={motivo}", sqlHeader, fecha_baja, motivo);
+                var idHistorial = (await header.ExecuteScalarAsync())?.ToString()
+                    ?? throw new InvalidOperationException("No se obtuvo el ID del movimiento de baja.");
+
+                using var detalle = new SqlCommand(sqlDetalle, connection, tx);
+                detalle.Parameters.AddWithValue("@personal", personal);
+                detalle.Parameters.AddWithValue("@ID", idHistorial);
+                _logger.LogInformation("Inserting detalle baja for personal: {personal} with idHistorial: {idHistorial}", personal, idHistorial);
+                _sqlLogger.LogInformation("Executing SQL: {sql} with parameters: personal={personal}, idHistorial={idHistorial}", sqlDetalle, personal, idHistorial);
+                int renglones = await detalle.ExecuteNonQueryAsync();
+                if (renglones == 0)
+                    throw new InvalidOperationException($"No existe el personal {personal} para registrar el detalle de la baja.");
+
+                await tx.CommitAsync();
+                return idHistorial;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al registrar baja para personal {personal}; se revierte la transacción.", personal);
+                await tx.RollbackAsync();
+                throw;
+            }
+        }
+
+        
     }
 }

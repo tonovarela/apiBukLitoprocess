@@ -284,26 +284,26 @@ public class ColaboradorRepository : IColaboradorRepository
     public async Task RegistrarBaja(string idPersonalBuk, string conceptoBaja, string fechaBaja)
     {
 
-        try
-        {
-            using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
-            const string sql = @"
-                            UPDATE dbo.Personal SET Estatus='BAJA',
-                                                   FechaBaja=@FechaBaja,
-                                                   ConceptoBaja=@ConceptoBaja
-                                                   WHERE Usuario=@idPersonalBuk
-                                                   ";
-            using var command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@idPersonalBuk", idPersonalBuk);
-            command.Parameters.AddWithValue("@ConceptoBaja", conceptoBaja);
-            command.Parameters.AddWithValue("@FechaBaja", fechaBaja);
-            await command.ExecuteNonQueryAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error SQL al registrar colaborador {idPersonalBuk}: {ex.Message}");
-            throw;
-        }
+        // try
+        // {
+        //     using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
+        //     const string sql = @"
+        //                     UPDATE dbo.Personal SET Estatus='BAJA',
+        //                                            FechaBaja=@FechaBaja,
+        //                                            ConceptoBaja=@ConceptoBaja
+        //                                            WHERE Usuario=@idPersonalBuk
+        //                                            ";
+        //     using var command = new SqlCommand(sql, connection);
+        //     command.Parameters.AddWithValue("@idPersonalBuk", idPersonalBuk);
+        //     command.Parameters.AddWithValue("@ConceptoBaja", conceptoBaja);
+        //     command.Parameters.AddWithValue("@FechaBaja", fechaBaja);
+        //     await command.ExecuteNonQueryAsync();
+        // }
+        // catch (Exception ex)
+        // {
+        //     Console.WriteLine($"Error SQL al registrar colaborador {idPersonalBuk}: {ex.Message}");
+        //     throw;
+        // }
     }
 
     public async Task Insertar(ColaboradorDTO colaborador, int nuevoIdColaborador)
