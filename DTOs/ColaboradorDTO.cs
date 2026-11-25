@@ -63,6 +63,8 @@ public class ColaboradorDTO
 
     public string? PeriodoTipo { get; set; }
 
+    public required string  Estatus { get; set; } 
+
 
 
     

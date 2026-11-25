@@ -35,6 +35,7 @@ public class ColaboradorComparadorTests
         IdColaborador = "1001",
         CURP = "PELJ900101HDFRRN00",
         RFC = "PELJ900101AB1",
+        Estatus = "activo",
         FechaNacimiento = "1990-01-01",
         EstadoCivil = "Soltero",
         SalarioDiario = 350.50,

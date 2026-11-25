@@ -5,6 +5,7 @@ using apiBukLitoprocess.repository.implementation;
 using apiBukLitoprocess.repository.interfaces;
 using apiBukLitoprocess.Services;
 using apiBukLitoprocess.Services.Acciones;
+using apiBukLitoprocess.Services.Reingreso;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using Serilog.Filters;
@@ -47,6 +48,7 @@ builder.Services.AddScoped<IAccionCambioColaborador, AccionCambioSueldoDiario>()
 builder.Services.AddScoped<IAccionCambioColaborador, AccionCambioReportaA>();
 builder.Services.AddScoped<IAccionCambioColaborador, AccionCambioCentroCostos>();
 builder.Services.AddScoped<IAccionCambioColaborador, AccionCambioJornada>();
+builder.Services.AddScoped<IReingresoColaborador, ReingresoColaborador>();
 
 builder.Services.AddHttpClient(ApiClientNames.Buk, (sp, client) =>
 {

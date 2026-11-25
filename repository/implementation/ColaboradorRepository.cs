@@ -561,7 +561,7 @@ public class ColaboradorRepository : IColaboradorRepository
     {
         await using var connection = (SqlConnection)_dbConnectionFactory.CreateConnection();
         await using var command = new SqlCommand($"{SelectColaborador} WHERE {filtro}", connection);
-        command.Parameters.Add("@valor", tipo, 10).Value = valor;
+        command.Parameters.Add("@valor", tipo).Value = valor;
         await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow);
         if (!await reader.ReadAsync())
         {
@@ -581,5 +581,20 @@ public class ColaboradorRepository : IColaboradorRepository
             Jornada = Texto(6)
         };
     }
+
+    // Con incluirActivos = false solo devuelve personal de baja que NO tenga ya un reingreso pendiente
+    // (movimiento 'Reingreso' sin afectar); así un segundo webhook no duplica el movimiento.
+    private const string FiltroBajaSinReingresoPendiente = @"
+                AND Estatus = 'BAJA'
+                AND NOT EXISTS (SELECT 1 FROM RH r JOIN RHD d ON d.ID = r.ID
+                                WHERE d.Personal = Personal.Personal
+                                  AND r.Concepto = 'Reingreso' AND r.Estatus = 'SINAFECTAR')";
+
+    public Task<Colaborador?> ObtenerPorRFC(string rfc, bool incluirActivos)
+    {
+        return ObtenerPor($"Registro2 = @valor{(incluirActivos ? "" : FiltroBajaSinReingresoPendiente)}", SqlDbType.VarChar, rfc);
+    }
+
+   
 }
 

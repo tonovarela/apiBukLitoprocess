@@ -10,6 +10,7 @@ public interface IColaboradorRepository
 
 
 //public Task<Colaborador?> Obtener(string personal);
+public Task<Colaborador?> ObtenerPorRFC(string rfc,bool incluirActivos);
 public Task<Colaborador?> ObtenerPorUsuario(string idBuk);
 public Task Actualizar(ColaboradorDTO colaborador);
 

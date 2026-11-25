@@ -65,6 +65,7 @@ public static class ColaboradorExtensions
          return new ColaboradorDTO
         {
             id = colaborador.id,
+            Estatus = colaborador.status ?? String.Empty,
             Nombre = colaborador.first_name?.ToUpper() ?? string.Empty,
             ApellidoPaterno = colaborador.surname?.ToUpper() ?? string.Empty,
             ApellidoMaterno = colaborador.second_surname?.ToUpper() ?? string.Empty,

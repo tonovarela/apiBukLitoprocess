@@ -10,5 +10,7 @@ namespace apiBukLitoprocess.repository.interfaces
 
         /// <summary>Inserta header (RH) y detalle (RHD) de la baja en una sola transacción. Devuelve el ID del movimiento.</summary>
         public Task<string> InsertarBaja(string fecha_baja, string motivo, string personal);
+
+         public Task<string> InsertarReingreso(string personal);
     }
 }

@@ -10,6 +10,7 @@ using apiBukLitoprocess.Services.Acciones;
 using apiBukLitoprocess.repository.interfaces;
 using apiBukLitoprocess.responseApi;
 using apiBukLitoprocess.helpers;
+using apiBukLitoprocess.Services.Reingreso;
 
 
 namespace apiBukLitoprocess.Services;
@@ -27,6 +28,7 @@ public class ColaboradorService
     private readonly IHistorialRepository _historialRepository;
     private readonly IAusenciaRepository _ausenciaRepository;
     private readonly IEnumerable<IAccionCambioColaborador> _accionesCambio;
+    private readonly IReingresoColaborador _reingreso;
 
     private readonly HashSet<string> EventosValidos = new(StringComparer.OrdinalIgnoreCase){
         "employee_update",
@@ -38,13 +40,15 @@ public class ColaboradorService
                              IColaboradorRepository colaboradorRepository,
                              IAusenciaRepository ausenciaRepository,
                              IHistorialRepository historialRepository,
-                             IEnumerable<IAccionCambioColaborador>? accionesCambio = null)
+                             IEnumerable<IAccionCambioColaborador>? accionesCambio = null,
+                             IReingresoColaborador? reingreso = null)
     {
         _restClient = restClient;
         _colaboradorRepository = colaboradorRepository;
         _ausenciaRepository = ausenciaRepository;
         _historialRepository = historialRepository;
         _accionesCambio = accionesCambio ?? [];
+        _reingreso = reingreso ?? new ReingresoColaborador(colaboradorRepository, historialRepository);
     }
 
 
@@ -79,7 +83,15 @@ public class ColaboradorService
             switch (eventType)
             {
                 case "employee_update" or "job_movement":
-                    detalle = await ProcesarActualizacionAsync(idEmployeeBuk, eventType, colaborador);
+                    var reingreso = await _reingreso.ProcesarAsync(colaborador);
+                    if (reingreso.Estado == EstadoReingreso.InactivoEnBuk)
+                    {
+                        await RegistrarBitacoraAsync(BitacoraDTO.Omitido(idEmployeeBuk, eventType, $"El personal {reingreso.Personal} está de baja en Intelisis y no está activo en Buk."));
+                        return GetColaboradorResult.Ok(colaborador);
+                    }
+                    detalle = reingreso.Estado == EstadoReingreso.Realizado
+                        ? $"Reingreso: personal {reingreso.Personal}, movimiento {reingreso.IdMovimiento}"
+                        : await ProcesarActualizacionAsync(idEmployeeBuk, eventType, colaborador);
                     break;
                 case "job_termination":
                     if (!await ProcesarBajaAsync(idEmployeeBuk, colaborador))
