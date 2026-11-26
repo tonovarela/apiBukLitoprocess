@@ -4,6 +4,7 @@
 bin/
 obj/
 
+
 # Logs
 logs/
 
@@ -20,7 +21,7 @@ appsettings.*.json
 
 # Archivos de logs
 *.log
-
+references/*.json
 # Archivos temporales
 *.tmp
 *.temp
