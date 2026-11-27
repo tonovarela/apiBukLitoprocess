@@ -1,6 +1,6 @@
 # SPEC 02 — Sincronización de vacantes (procesos de selección) desde Buk
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** SPEC 01 (solo la convención `ToUpperInvariant` para puestos)
 > **Fecha:** 2026-11-27
 > **Objetivo:** Que `GET /api/reclutamiento/vacantes/sync` descargue los procesos de selección de Buk creados desde una fecha, los mapee a `VacanteDTO` en `ReclutamientoService` y los guarde con upsert por `id_vacante` en `Buk.dbo.Vacante`.
